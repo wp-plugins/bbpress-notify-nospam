@@ -1,5 +1,5 @@
 === bbPress Notify (No Spam) ===
-Contributors: abaumg, usestrict
+Contributors: useStrict
 Author URI: http://www.usestrict.net/
 Plugin URI: http://usestrict.net/2013/02/bbpress-notify-nospam/
 Tags: bbpress, email notification, no spam
