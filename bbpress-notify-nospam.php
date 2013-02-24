@@ -3,7 +3,7 @@
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
 * Version: 1.0
-* Author: Andreas Baumgartner, Vinny Alves
+* Author: Vinny Alves, Andreas Baumgartner
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 *
