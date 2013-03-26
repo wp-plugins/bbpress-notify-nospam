@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.0
+* Version: 1.1
 * Author: Vinny Alves, Andreas Baumgartner
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -220,7 +220,7 @@ class bbPress_Notify_noSpam {
 		$email_body = str_replace('[topic-url]', $topic_url, $email_body);
 		$email_body = str_replace('[topic-replyurl]', $topic_reply, $email_body);
 	
-		send_notification($recipients, $email_subject, $email_body);
+		$this->send_notification($recipients, $email_subject, $email_body);
 	}
 	
 	
@@ -327,7 +327,7 @@ class bbPress_Notify_noSpam {
 		$email_body = str_replace('[reply-url]', $topic_url, $email_body);
 		$email_body = str_replace('[reply-replyurl]', $topic_reply, $email_body);
 	
-		send_notification($recipients, $email_subject, $email_body);
+		$this->send_notification($recipients, $email_subject, $email_body);
 	}
 	
 	
@@ -346,15 +346,15 @@ class bbPress_Notify_noSpam {
 	/* Add the settings to the bbPress page in the Dashboard */
 	function admin_settings() {
 		// Add section to bbPress options
-		add_settings_section('bbpress_notify_options', __('E-mail Notifications', 'bbpress_notify'), '_settings_intro_text', 'bbpress');
+		add_settings_section('bbpress_notify_options', __('E-mail Notifications', 'bbpress_notify'), array(&$this,'_settings_intro_text'), 'bbpress');
 	
 		// Add form fields for all settings
-		add_settings_field('bbpress_notify_newtopic_recipients', __('Notifications about new topics are sent to', 'bbpress_notify'), _topic_recipients_inputfield, 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newtopic_email_subject', __('E-mail subject', 'bbpress_notify'), _email_newtopic_subject_inputfield, 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newtopic_email_body', __('E-mail body (template tags: [blogname], [topic-title], [topic-content], [topic-excerpt], [topic-author], [topic-url], [topic-replyurl])', 'bbpress_notify'), _email_newtopic_body_inputfield, 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newreply_recipients', __('Notifications about replies are sent to', 'bbpress_notify'), _reply_recipients_inputfield, 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newreply_email_subject', __('E-mail subject', 'bbpress_notify'), _email_newreply_subject_inputfield, 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newreply_email_body', __('E-mail body (template tags: [blogname], [reply-title], [reply-content], [reply-excerpt], [reply-author], [reply-url], [reply-replyurl])', 'bbpress_notify'), _email_newreply_body_inputfield, 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newtopic_recipients', __('Notifications about new topics are sent to', 'bbpress_notify'), array(&$this,'_topic_recipients_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newtopic_email_subject', __('E-mail subject', 'bbpress_notify'), array(&$this,'_email_newtopic_subject_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newtopic_email_body', __('E-mail body (template tags: [blogname], [topic-title], [topic-content], [topic-excerpt], [topic-author], [topic-url], [topic-replyurl])', 'bbpress_notify'), array(&$this,'_email_newtopic_body_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newreply_recipients', __('Notifications about replies are sent to', 'bbpress_notify'), array(&$this,'_reply_recipients_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newreply_email_subject', __('E-mail subject', 'bbpress_notify'), array(&$this,'_email_newreply_subject_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newreply_email_body', __('E-mail body (template tags: [blogname], [reply-title], [reply-content], [reply-excerpt], [reply-author], [reply-url], [reply-replyurl])', 'bbpress_notify'), array(&$this,'_email_newreply_body_inputfield'), 'bbpress', 'bbpress_notify_options');
 	
 		// Register the settings as part of the bbPress settings
 		register_setting('bbpress', 'bbpress_notify_newtopic_recipients');
