@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.1
+* Version: 1.1.1
 * Author: Vinny Alves, Andreas Baumgartner
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -21,10 +21,7 @@
 */
 
 /* Search for translations */
-if (!load_plugin_textdomain('bbpress_notify','/wp-content/languages/'))
-{
-	load_plugin_textdomain('bbpress_notify','/wp-content/plugins/bbpress-notify-nospam/languages/');
-}
+load_plugin_textdomain('bbpress_notify',false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 
 class bbPress_Notify_noSpam {
 
