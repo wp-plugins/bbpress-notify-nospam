@@ -8,7 +8,7 @@ Tested up to: 3.5.1
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.1
+Stable tag: 1.1.1
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -43,6 +43,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.1.1 =
+* Fixed load_plugin_textdomain call.
+
 = 1.1 =
 * Fixed methods called as functions.
 
