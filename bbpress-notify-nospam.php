@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.1.1
+* Version: 1.1.2
 * Author: Vinny Alves, Andreas Baumgartner
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -123,7 +123,7 @@ class bbPress_Notify_noSpam {
 		
 		$opt_recipients = get_option('bbpress_notify_newtopic_recipients');
 		$recipients = array();
-		foreach ($opt_recipients as $opt_recipient)
+		foreach ((array)$opt_recipients as $opt_recipient)
 		{
 			switch($opt_recipient)
 			{
@@ -133,7 +133,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'admins':
 					$users = get_users(array('role' => 'administrator', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -142,7 +142,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'editors':
 					$users = get_users(array('role' => 'editor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -151,7 +151,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'authors':
 					$users = get_users(array('role' => 'author', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -160,7 +160,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'contributors':
 					$users = get_users(array('role' => 'contributor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -169,7 +169,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'subscribers':
 					$users = get_users(array('role' => 'subscriber', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -178,7 +178,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'all':
 					$users = get_users(array('orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -229,7 +229,7 @@ class bbPress_Notify_noSpam {
 		
 		$opt_recipients = get_option('bbpress_notify_newreply_recipients');
 		$recipients = array();
-		foreach ($opt_recipients as $opt_recipient)
+		foreach ((array)$opt_recipients as $opt_recipient)
 		{
 			switch($opt_recipient)
 			{
@@ -239,7 +239,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'admins':
 					$users = get_users(array('role' => 'administrator', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -248,7 +248,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'editors':
 					$users = get_users(array('role' => 'editor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -257,7 +257,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'authors':
 					$users = get_users(array('role' => 'author', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -266,7 +266,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'contributors':
 					$users = get_users(array('role' => 'contributor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -275,7 +275,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'subscribers':
 					$users = get_users(array('role' => 'subscriber', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -284,7 +284,7 @@ class bbPress_Notify_noSpam {
 	
 				case 'all':
 					$users = get_users(array('orderby' => 'login', 'fields' => 'all'));
-					foreach ($users as $user)
+					foreach ((array)$users as $user)
 					{
 						$user = get_object_vars($user);
 						$recipients[] = $user['ID'];
@@ -331,7 +331,7 @@ class bbPress_Notify_noSpam {
 	function send_notification($recipients, $subject, $body)
 	{
 		$headers = sprintf("From: %s <%s>\r\n", get_option('blogname'), get_bloginfo('admin_email'));
-		foreach ($recipients as $recipient_id)
+		foreach ((array)$recipients as $recipient_id)
 		{
 			$user_info = get_userdata($recipient_id);
 			if ($recipient_id == -1) { $email = get_bloginfo('admin_email'); } else { $email = (string)$user_info->user_email; }
@@ -386,7 +386,7 @@ class bbPress_Notify_noSpam {
 		foreach ($options as $value => $description)
 		{
 			$html_checked = '';
-			if (in_array($value, $saved_option)) { $html_checked = 'checked="checked"'; }
+			if (in_array($value, (array)$saved_option)) { $html_checked = 'checked="checked"'; }
 			printf('<input type="checkbox" %s name="bbpress_notify_newtopic_recipients[]" value="%s"/> %s<br>', $html_checked, $value, $description);
 		}
 	}
@@ -408,7 +408,7 @@ class bbPress_Notify_noSpam {
 		foreach ($options as $value => $description)
 		{
 			$html_checked = '';
-			if (in_array($value, $saved_option)) { $html_checked = 'checked="checked"'; }
+			if (in_array($value, (array)$saved_option)) { $html_checked = 'checked="checked"'; }
 			printf('<input type="checkbox" %s name="bbpress_notify_newreply_recipients[]" value="%s"/> %s<br>', $html_checked, $value, $description);
 		}
 	}
