@@ -2,8 +2,8 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.1.2
-* Author: Vinny Alves, Andreas Baumgartner
+* Version: 1.2
+* Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 *
@@ -38,21 +38,8 @@ class bbPress_Notify_noSpam {
 		
 		// On plugin activation, check whether bbPress is active
 		register_activation_hook(__FILE__, array(&$this,'on_activation'));
-		
-		// Deactivate original bbPress Notify if found
-		add_action('admin_init', array(&$this,'deactivate_old'));
 	}
 	
-	function deactivate_old()
-	{
-		$old_plugin = 'bbpress-notify/bbpress-notify.php';
-		if (is_plugin_active($old_plugin))
-		{
-			deactivate_plugins($old_plugin);
-		}
-		
-	}
-
 	/* Checks whether bbPress is active because we need it. If bbPress isn't active, we are going to disable ourself */
 	function on_activation()
 	{
@@ -87,31 +74,6 @@ class bbPress_Notify_noSpam {
 		{
 			update_option('bbpress_notify_newreply_email_body', __("Hello!\nA new reply has been posted by [reply-author].\nTopic title: [reply-title]\nTopic url: [reply-url]\n\nExcerpt:\n[reply-excerpt]"));
 		}
-	
-		// Convert settings stored by 0.1 into arrays
-		$oldsettings_newtopic = get_option('bbpress_notify_newtopic_recipients');
-		if (!is_array($oldsettings_newtopic))
-		{
-			if ($oldsettings_newtopic == 'all')
-			{
-				$newsettings_newtopic = array('blogadmin', 'admins', 'editors', 'authors', 'contributors', 'subscribers');
-			} else {
-				$newsettings_newtopic = array($oldsettings_newtopic);
-			}
-			update_option('bbpress_notify_newtopic_recipients', array($newsettings_newtopic));
-		}
-	
-		$oldsettings_newreply = get_option('bbpress_notify_newreply_recipients');
-		if (!is_array($oldsettings_newreply))
-		{
-			if ($oldsettings_newreply == 'all')
-			{
-				$newsettings_newreply = array('blogadmin', 'admins', 'editors', 'authors', 'contributors', 'subscribers');
-			} else {
-				$newsettings_newreply = array($oldsettings_newreply);
-			}
-			update_option('bbpress_notify_newreply_recipients', array($newsettings_newreply));
-		}
 	}
 	
 	
@@ -125,68 +87,11 @@ class bbPress_Notify_noSpam {
 		$recipients = array();
 		foreach ((array)$opt_recipients as $opt_recipient)
 		{
-			switch($opt_recipient)
+			$users = get_users(array('role' => $opt_recipient));
+			foreach ((array)$users as $user)
 			{
-				case 'blogadmin':
-					$recipients[] = -1;
-					break;
-	
-				case 'admins':
-					$users = get_users(array('role' => 'administrator', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'editors':
-					$users = get_users(array('role' => 'editor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'authors':
-					$users = get_users(array('role' => 'author', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'contributors':
-					$users = get_users(array('role' => 'contributor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'subscribers':
-					$users = get_users(array('role' => 'subscriber', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'all':
-					$users = get_users(array('orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'none':
-					break;
+				$user = get_object_vars($user);
+				$recipients[] = $user['ID'];
 			}
 		}
 		$email_subject = get_option('bbpress_notify_newtopic_email_subject');
@@ -231,68 +136,11 @@ class bbPress_Notify_noSpam {
 		$recipients = array();
 		foreach ((array)$opt_recipients as $opt_recipient)
 		{
-			switch($opt_recipient)
+			$users = get_users(array('role' => $opt_recipient));
+			foreach ((array)$users as $user)
 			{
-				case 'blogadmin':
-					$recipients[] = -1;
-					break;
-	
-				case 'admins':
-					$users = get_users(array('role' => 'administrator', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'editors':
-					$users = get_users(array('role' => 'editor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'authors':
-					$users = get_users(array('role' => 'author', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'contributors':
-					$users = get_users(array('role' => 'contributor', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'subscribers':
-					$users = get_users(array('role' => 'subscriber', 'orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'all':
-					$users = get_users(array('orderby' => 'login', 'fields' => 'all'));
-					foreach ((array)$users as $user)
-					{
-						$user = get_object_vars($user);
-						$recipients[] = $user['ID'];
-					}
-					break;
-	
-				case 'none':
-					break;
+				$user = get_object_vars($user);
+				$recipients[] = $user['ID'];
 			}
 		}
 	
@@ -374,14 +222,9 @@ class bbPress_Notify_noSpam {
 	/* Show a <select> combobox with recipient options for new topic notifications */
 	function _topic_recipients_inputfield()
 	{
-		$options = array(
-			'blogadmin' => __('Blog owner', 'bbpress_notify'),
-			'admins' => __('All Administrators', 'bbpress_notify'),
-			'editors' => __('All Editors', 'bbpress_notify'),
-			'authors' => __('All Authors', 'bbpress_notify'),
-			'contributors' => __('All Contributors', 'bbpress_notify'),
-			'subscribers' => __('All Subscribers', 'bbpress_notify')
-		);
+		global $wp_roles;
+		
+		$options = $wp_roles->get_names();
 		$saved_option = get_option('bbpress_notify_newtopic_recipients');
 		foreach ($options as $value => $description)
 		{
@@ -395,15 +238,9 @@ class bbPress_Notify_noSpam {
 	/* Show a <select> combobox with recipient options for new reply notifications */
 	function _reply_recipients_inputfield()
 	{
-		$options = array(
-			'blogadmin' => __('Blog owner', 'bbpress_notify'),
-			'admins' => __('All Administrators', 'bbpress_notify'),
-			'editors' => __('All Editors', 'bbpress_notify'),
-			'authors' => __('All Authors', 'bbpress_notify'),
-			'contributors' => __('All Contributors', 'bbpress_notify'),
-			'subscribers' => __('All Subscribers', 'bbpress_notify')
-			// TODO: 'participants' => __('Users who discuss in the topic', 'bbpress_notify')
-		);
+		global $wp_roles;
+
+		$options = $wp_roles->get_names();
 		$saved_option = get_option('bbpress_notify_newreply_recipients');
 		foreach ($options as $value => $description)
 		{
