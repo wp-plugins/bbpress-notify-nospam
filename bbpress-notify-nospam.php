@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.2
+* Version: 1.2.1
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -33,11 +33,24 @@ class bbPress_Notify_noSpam {
 		add_action('admin_init', array(&$this,'admin_settings'));
 		
 		// Triggers the notifications on new topics/replies
-		add_action('bbp_new_topic', array(&$this,'notify_new_topic'));
-		add_action('bbp_new_reply', array(&$this,'notify_new_reply'));
+		add_action('bbp_new_topic', array(&$this,'notify_new_topic'), 100);
+		add_action('bbp_new_reply', array(&$this,'notify_new_reply'), 100);
 		
 		// On plugin activation, check whether bbPress is active
 		register_activation_hook(__FILE__, array(&$this,'on_activation'));
+		
+		// Deactivate original bbPress Notify if found
+		add_action('admin_init', array(&$this,'deactivate_old'));
+	}
+	
+	function deactivate_old()
+	{
+		$old_plugin = 'bbpress-notify/bbpress-notify.php';
+		if (is_plugin_active($old_plugin))
+		{
+			deactivate_plugins($old_plugin);
+		}
+	
 	}
 	
 	/* Checks whether bbPress is active because we need it. If bbPress isn't active, we are going to disable ourself */

@@ -4,11 +4,11 @@ Author URI: http://www.usestrict.net/
 Plugin URI: http://usestrict.net/2013/02/bbpress-notify-nospam/
 Tags: bbpress, email notification, no spam
 Requires at least: 3.1
-Tested up to: 3.5.1
+Tested up to: 3.6
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.2
+Stable tag: 1.2.1
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -43,6 +43,10 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.2.1 =
+* Added back old plugin deactivation
+* Bug fix for topic author not displaying when anonymous by Rick Tuttle
+
 = 1.2 =
 * Improved role handling by Paul Schroeder.
 
