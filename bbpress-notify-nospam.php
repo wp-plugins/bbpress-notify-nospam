@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.2.2
+* Version: 1.3
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -32,16 +32,48 @@ class bbPress_Notify_noSpam {
 		// Add settings to the Dashboard
 		add_action('admin_init', array(&$this,'admin_settings'));
 		
-		// Triggers the notifications on new topics/replies
-		add_action('bbp_new_topic', array(&$this,'notify_new_topic'), 100);
-		add_action('bbp_new_reply', array(&$this,'notify_new_reply'), 100);
+		// Triggers the notifications on new topics
+		if ( get_option('bbpress_notify_newtopic_background') )
+		{
+			add_action('bbpress_notify_bg_topic', array(&$this, 'notify_new_topic'), 10, 4);
+			add_action('bbp_new_topic', array(&$this,'bg_notify_new_topic'), 100);
+		}
+		else
+		{
+			add_action('bbp_new_topic', array(&$this,'notify_new_topic'), 100);
+		} 
 		
+		
+		// Triggers the notifications on new replies
+		if ( get_option('bbpress_notify_newreply_background') )
+		{
+			add_action('bbpress_notify_bg_reply', array(&$this, 'notify_new_reply'), 10, 4);
+			add_action('bbp_new_reply', array(&$this,'bg_notify_new_reply'), 100);
+		}
+		else
+		{
+			add_action('bbp_new_reply', array(&$this,'notify_new_reply'), 100);
+		}
+			
 		// On plugin activation, check whether bbPress is active
 		register_activation_hook(__FILE__, array(&$this,'on_activation'));
 		
 		// Deactivate original bbPress Notify if found
 		add_action('admin_init', array(&$this,'deactivate_old'));
 	}
+	
+	
+	function bg_notify_new_reply($topic_id = 0, $forum_id = 0, $anonymous_data = false, $topic_author = 0)
+	{
+		wp_schedule_single_event(time() + 10, 'bbpress_notify_bg_reply', array($topic_id, $forum_id, $anonymous_data, $topic_author));
+	}
+	
+	
+	function bg_notify_new_topic($topic_id = 0, $forum_id = 0, $anonymous_data = false, $topic_author = 0)
+	{
+		wp_schedule_single_event(time() + 10, 'bbpress_notify_bg_topic', array($topic_id, $forum_id, $anonymous_data, $topic_author));
+	}
+	
 	
 	function deactivate_old()
 	{
@@ -63,6 +95,14 @@ class bbPress_Notify_noSpam {
 		}
 	
 		// Default settings
+		if (!get_option('bbpress_notify_newtopic_background'))
+		{
+			update_option('bbpress_notify_newtopic_background', 0);
+		}
+		if (!get_option('bbpress_notify_newreply_background'))
+		{
+			update_option('bbpress_notify_newreply_background', 0);
+		}
 		if (!get_option('bbpress_notify_newtopic_recipients'))
 		{
 			update_option('bbpress_notify_newtopic_recipients', array('administrator'));
@@ -93,7 +133,7 @@ class bbPress_Notify_noSpam {
 	function notify_new_topic($topic_id = 0, $forum_id = 0, $anonymous_data = false, $topic_author = 0)
 	{
 		global $wpdb;
-		
+
 		if (get_post_status($topic_id) == 'spam') return;
 		
 		$opt_recipients = get_option('bbpress_notify_newtopic_recipients');
@@ -215,10 +255,15 @@ class bbPress_Notify_noSpam {
 		// Add section to bbPress options
 		add_settings_section('bbpress_notify_options', __('E-mail Notifications', 'bbpress_notify'), array(&$this,'_settings_intro_text'), 'bbpress');
 	
+		// Add background option
+		add_settings_field('bbpress_notify_newtopic_background', __('Background Topic Notifications', 'bbpress_notify'), array(&$this,'_topic_background_inputfield'), 'bbpress', 'bbpress_notify_options');
+		
 		// Add form fields for all settings
 		add_settings_field('bbpress_notify_newtopic_recipients', __('Notifications about new topics are sent to', 'bbpress_notify'), array(&$this,'_topic_recipients_inputfield'), 'bbpress', 'bbpress_notify_options');
 		add_settings_field('bbpress_notify_newtopic_email_subject', __('E-mail subject', 'bbpress_notify'), array(&$this,'_email_newtopic_subject_inputfield'), 'bbpress', 'bbpress_notify_options');
 		add_settings_field('bbpress_notify_newtopic_email_body', __('E-mail body (template tags: [blogname], [topic-title], [topic-content], [topic-excerpt], [topic-author], [topic-url], [topic-replyurl])', 'bbpress_notify'), array(&$this,'_email_newtopic_body_inputfield'), 'bbpress', 'bbpress_notify_options');
+		
+		add_settings_field('bbpress_notify_newreply_background', __('Background Reply Notifications', 'bbpress_notify'), array(&$this,'_reply_background_inputfield'), 'bbpress', 'bbpress_notify_options');
 		add_settings_field('bbpress_notify_newreply_recipients', __('Notifications about replies are sent to', 'bbpress_notify'), array(&$this,'_reply_recipients_inputfield'), 'bbpress', 'bbpress_notify_options');
 		add_settings_field('bbpress_notify_newreply_email_subject', __('E-mail subject', 'bbpress_notify'), array(&$this,'_email_newreply_subject_inputfield'), 'bbpress', 'bbpress_notify_options');
 		add_settings_field('bbpress_notify_newreply_email_body', __('E-mail body (template tags: [blogname], [reply-title], [reply-content], [reply-excerpt], [reply-author], [reply-url], [reply-replyurl])', 'bbpress_notify'), array(&$this,'_email_newreply_body_inputfield'), 'bbpress', 'bbpress_notify_options');
@@ -227,10 +272,12 @@ class bbPress_Notify_noSpam {
 		register_setting('bbpress', 'bbpress_notify_newtopic_recipients');
 		register_setting('bbpress', 'bbpress_notify_newtopic_email_subject');
 		register_setting('bbpress', 'bbpress_notify_newtopic_email_body');
+		register_setting('bbpress', 'bbpress_notify_newtopic_background');
 	
 		register_setting('bbpress', 'bbpress_notify_newreply_recipients');
 		register_setting('bbpress', 'bbpress_notify_newreply_email_subject');
 		register_setting('bbpress', 'bbpress_notify_newreply_email_body');
+		register_setting('bbpress', 'bbpress_notify_newreply_background');
 	
 	}
 	
@@ -240,6 +287,22 @@ class bbPress_Notify_noSpam {
 		_e('Configure e-mail notifications when new topics and/or replies are posted.', 'bbpress_notify');
 	}
 	
+	
+	function _topic_background_inputfield()
+	{
+		$saved_option = get_option('bbpress_notify_newtopic_background');
+		if ( $saved_option ) { $html_checked = 'checked="checked"'; }
+		$description = __('Send emails in the background the next time the site is visited', 'bbpress_notify');
+		printf('<input type="checkbox" %s name="bbpress_notify_newtopic_background" value="1"/> %s<br>', $html_checked, $description);
+	}
+	
+	function _reply_background_inputfield()
+	{
+		$saved_option = get_option('bbpress_notify_newreply_background');
+		if ( $saved_option ) { $html_checked = 'checked="checked"'; }
+		$description = __('Send emails in the background the next time the site is visited', 'bbpress_notify');
+		printf('<input type="checkbox" %s name="bbpress_notify_newreply_background" value="1"/> %s<br>', $html_checked, $description);
+	}
 	
 	/* Show a <select> combobox with recipient options for new topic notifications */
 	function _topic_recipients_inputfield()

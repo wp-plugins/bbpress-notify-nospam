@@ -8,7 +8,7 @@ Tested up to: 3.6.1
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.2.2
+Stable tag: 1.3
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -29,7 +29,7 @@ Settings include:
 
 == Frequently Asked Questions ==
 = Did you write this plugin? =
-No, I simply added a spam filter.
+No, I simply added a spam filter and a couple of other improvements.
 
 = Why did you do this? =
 Because the original author never answered the WP support forums or any emails, for that matter.
@@ -43,6 +43,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.3 =
+* New: Added background notifications
+
 = 1.2.2 =
 * Fixed: bug that was sending emails to everyone if no role was saved.
 * Fixed: no longer using 'blogadmin' as default, but 'administrator' upon install.
