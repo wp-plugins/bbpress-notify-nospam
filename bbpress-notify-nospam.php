@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.2.1
+* Version: 1.2.2
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -17,7 +17,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
-* Copyright (C) 2012 www.usestrict.net, released under the GNU General Public License.
+* Copyright (C) 2012-2013 www.usestrict.net, released under the GNU General Public License.
 */
 
 /* Search for translations */
@@ -65,11 +65,11 @@ class bbPress_Notify_noSpam {
 		// Default settings
 		if (!get_option('bbpress_notify_newtopic_recipients'))
 		{
-			update_option('bbpress_notify_newtopic_recipients', array('blogadmin'));
+			update_option('bbpress_notify_newtopic_recipients', array('administrator'));
 		}
 		if (!get_option('bbpress_notify_newreply_recipients'))
 		{
-			update_option('bbpress_notify_newreply_recipients', array('blogadmin'));
+			update_option('bbpress_notify_newreply_recipients', array('administrator'));
 		}
 		if (!get_option('bbpress_notify_newtopic_email_subject'))
 		{
@@ -100,6 +100,8 @@ class bbPress_Notify_noSpam {
 		$recipients = array();
 		foreach ((array)$opt_recipients as $opt_recipient)
 		{
+			if (! $opt_recipient) continue;
+				
 			$users = get_users(array('role' => $opt_recipient));
 			foreach ((array)$users as $user)
 			{
@@ -107,6 +109,9 @@ class bbPress_Notify_noSpam {
 				$recipients[] = $user['ID'];
 			}
 		}
+		
+		if ( empty($recipients) ) return;
+		
 		$email_subject = get_option('bbpress_notify_newtopic_email_subject');
 		$email_body = get_option('bbpress_notify_newtopic_email_body');
 	
@@ -149,6 +154,8 @@ class bbPress_Notify_noSpam {
 		$recipients = array();
 		foreach ((array)$opt_recipients as $opt_recipient)
 		{
+			if (! $opt_recipient) continue;
+			
 			$users = get_users(array('role' => $opt_recipient));
 			foreach ((array)$users as $user)
 			{
@@ -156,6 +163,8 @@ class bbPress_Notify_noSpam {
 				$recipients[] = $user['ID'];
 			}
 		}
+		
+		if ( empty($recipients) ) return;
 	
 		$email_subject = get_option('bbpress_notify_newreply_email_subject');
 		$email_body = get_option('bbpress_notify_newreply_email_body');
