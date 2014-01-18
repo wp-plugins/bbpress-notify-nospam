@@ -8,7 +8,7 @@ Tested up to: 3.8
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.4
+Stable tag: 1.4.1
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -46,6 +46,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.4.1 =
+* Fixed: preg_replace error in some installs.
+
 = 1.4 =
 * Fixed: Strict notices.
 * Added: Settings link in Plugins page.

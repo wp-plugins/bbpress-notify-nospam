@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.4
+* Version: 1.4.1
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -251,7 +251,7 @@ class bbPress_Notify_noSpam {
 		$email_subject = str_replace("[$type-url]", $topic_url, $email_subject);
 		$email_subject = str_replace("[$type-replyurl]", $topic_reply, $email_subject);
 		
-		preg_replace('/<br\s*\/?>/igs', "\n", $topic_content);
+		preg_replace('/<br\s*\/?>/is', "\n", $topic_content);
 
 		$email_body = str_replace('[blogname]', $blogname, $email_body);
 		$email_body = str_replace("[$type-title]", $topic_title, $email_body);
@@ -260,8 +260,6 @@ class bbPress_Notify_noSpam {
 		$email_body = str_replace("[$type-author]", $topic_author, $email_body);
 		$email_body = str_replace("[$type-url]", $topic_url, $email_body);
 		$email_body = str_replace("[$type-replyurl]", $topic_reply, $email_body);
-		
-error_log(__LINE__ . sprintf('Subject: %s; Body: %s ', $email_subject, $email_body));
 		
 		return array($email_subject, $email_body);
 	}
