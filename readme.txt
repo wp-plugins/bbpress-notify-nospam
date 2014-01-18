@@ -4,11 +4,11 @@ Author URI: http://www.usestrict.net/
 Plugin URI: http://usestrict.net/2013/02/bbpress-notify-nospam/
 Tags: bbpress, email notification, no spam
 Requires at least: 3.1
-Tested up to: 3.6.1
+Tested up to: 3.8
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.3
+Stable tag: 1.4
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -20,29 +20,39 @@ Settings include:
 * Notification recipients for new topics, 
 * Notification recipients for new replies, 
 * Notification e-mail's subject and body for both new topics and replies
+* Set Background Notifications (no longer causes delays in loading pages for large user databases)
 
 
 == Installation ==
 
 1. Upload the entire plugin folder via FTP to `/wp-content/plugins/`.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
+3. Go to the Settings -> Forums and select which group our groups should get notifications. 
 
 == Frequently Asked Questions ==
 = Did you write this plugin? =
 No, I simply added a spam filter and a couple of other improvements.
 
 = Why did you do this? =
-Because the original author never answered the WP support forums or any emails, for that matter.
+Because the original author never answered the WP support forums (or any emails, for that matter).
 
 = Do you plan on improving the plugin? =
-Not really. I just want to stop receiving spam from my bbPress install. However, if you want an improvement badly enough, contact me through vinny [at] usestrict [dot] net.
+Not really. I just want to stop receiving spam from my bbPress install. However, if you want an improvement badly enough, contact me through vinny [at] usestrict [dot] net and we'll discuss it.
 
 
 == Screenshots ==
 1. The settings page
+2. Ability to send notification when managing topics/replies in the admin UI 
 
 
 == Changelog ==
+= 1.4 =
+* Fixed: Strict notices.
+* Added: Settings link in Plugins page.
+* Added: Logging failed wp_mail call.
+* Added: Option to send notifications when adding/updating a topic or reply in the admin.
+* Added: Enforce replacement of &lt;br&gt; tags for newlines.
+
 = 1.3 =
 * New: Added background notifications
 
@@ -78,3 +88,7 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 = 0.1 =
 * First alpha version
+
+== Upgrade Notice ==
+= 1.4 =
+Fixes a couple of strict notices, and adds Settings action link, swaps &lt;br&gt; tags for newlines and enables sending notifications when creating a topic or reply from the admin UI. 
