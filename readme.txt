@@ -8,7 +8,7 @@ Tested up to: 3.8
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -46,6 +46,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.4.2 =
+* Tweak: make sure we have unique recipients. In some installs, duplicate emails were being sent.
+
 = 1.4.1 =
 * Fixed: preg_replace error in some installs.
 
@@ -93,5 +96,11 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 * First alpha version
 
 == Upgrade Notice ==
+= 1.4.2 =
+In some installs, people were getting duplicate emails. We're making sure that only one email is sent per user.
+
+= 1.4.1 =
+Fixes an error in preg_replace. Update is strongly recommended.
+
 = 1.4 =
 Fixes a couple of strict notices, and adds Settings action link, swaps &lt;br&gt; tags for newlines and enables sending notifications when creating a topic or reply from the admin UI. 
