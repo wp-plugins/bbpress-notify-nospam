@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.5
+* Version: 1.5.1
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -192,6 +192,12 @@ class bbPress_Notify_noSpam {
 		if (get_post_status($topic_id) == 'spam') 
 			return -1;
 		
+		if (0 === $forum_id)
+			$forum_id = bbp_get_topic_forum_id($topic_id);
+		
+		if (true === apply_filters('bbpnns_skip_topic_notification', false, $forum_id, $topic_id))
+			return -3;
+		
 		$opt_recipients = apply_filters('bbpress_notify_recipients_hidden_forum', get_option('bbpress_notify_newtopic_recipients'), $forum_id);
 		
 		$recipients = array();
@@ -212,10 +218,7 @@ class bbPress_Notify_noSpam {
 		
 		list($email_subject, $email_body) = $this->_build_email('topic', $topic_id);
 	
-		if (false === apply_filters('bbpnns_dry_run', false))
-			$this->send_notification($recipients, $email_subject, $email_body);
-		
-		return true;
+		return $this->send_notification($recipients, $email_subject, $email_body);
 	}
 	
 	
@@ -247,6 +250,9 @@ class bbPress_Notify_noSpam {
 	
 		if (get_post_status($reply_id) == 'spam') 
 			return -1;
+		
+		if (true === apply_filters('bbpnns_skip_reply_notification', false, $forum_id, $topic_id, $reply_id))
+			return -3;
 	
 		$opt_recipients = apply_filters('bbpress_notify_recipients_hidden_forum', get_option('bbpress_notify_newreply_recipients'), $forum_id);
 		
@@ -268,10 +274,7 @@ class bbPress_Notify_noSpam {
 	
 		list($email_subject, $email_body) = $this->_build_email('reply', $reply_id);
 	
-		if (false === apply_filters('bbpnns_dry_run', false))
-			$this->send_notification($recipients, $email_subject, $email_body);
-		
-		return true;
+		return $this->send_notification($recipients, $email_subject, $email_body);
 	}
 	
 	
@@ -287,7 +290,10 @@ class bbPress_Notify_noSpam {
 		$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
 		$topic_title = html_entity_decode(strip_tags(bbp_get_topic_title($topic_id)), ENT_NOQUOTES, 'UTF-8');
 		$topic_content = html_entity_decode(strip_tags(bbp_get_topic_content($topic_id)), ENT_NOQUOTES, 'UTF-8');
-		$topic_excerpt = html_entity_decode(strip_tags(bbp_get_topic_excerpt($topic_id, 100)), ENT_NOQUOTES, 'UTF-8');
+		
+		$excerpt_size = apply_filters('bpnns_excerpt_size', 100);
+		
+		$topic_excerpt = html_entity_decode(strip_tags(bbp_get_topic_excerpt($topic_id, $excerpt_size)), ENT_NOQUOTES, 'UTF-8');
 		$topic_author = bbp_get_topic_author($topic_id);
 		$topic_url = bbp_get_topic_permalink($topic_id);
 		$topic_reply = bbp_get_reply_url($topic_id);
@@ -319,16 +325,29 @@ class bbPress_Notify_noSpam {
 	function send_notification($recipients, $subject, $body)
 	{
 		$headers = sprintf("From: %s <%s>\r\n", get_option('blogname'), get_bloginfo('admin_email'));
+		$headers = apply_filters('bbpnns_extra_headers', $headers, $recipients, $subject, $body);
+		
 		
 		foreach ( (array) $recipients as $recipient_id)
 		{
 			$user_info = get_userdata($recipient_id);
 			
 			$email = ($recipient_id == -1) ? get_bloginfo('admin_email') : (string) $user_info->user_email ; 
-				 
-			if ( ! wp_mail($email, $subject, $body, $headers) )
-				error_log('wp_mail failed: ' . print_r(error_get_last(),1));
+
+			if (false === apply_filters('bbpnns_dry_run', false))
+			{
+				if ( ! wp_mail($email, $subject, $body, $headers) )
+				{
+					error_log('wp_mail failed: ' . print_r(error_get_last(),1));
+					return false;
+				}
+			}
 		}
+		
+		if (true === apply_filters('bbpnns_dry_run', false))
+			return $recipients;
+		
+		return true;
 	}
 	
 	/**
@@ -367,6 +386,7 @@ class bbPress_Notify_noSpam {
 		// Register the settings as part of the bbPress settings
 		register_setting('bbpress', 'bbpress_notify_newtopic_recipients');
 		register_setting('bbpress', 'bbpress_notify_hidden_forum_topic_override');
+		register_setting('bbpress', 'bbpress_notify_hidden_forum_reply_override');
 		register_setting('bbpress', 'bbpress_notify_newtopic_email_subject');
 		register_setting('bbpress', 'bbpress_notify_newtopic_email_body');
 		register_setting('bbpress', 'bbpress_notify_newtopic_background');
