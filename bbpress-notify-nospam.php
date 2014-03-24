@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.5.1
+* Version: 1.5.2
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -231,8 +231,8 @@ class bbPress_Notify_noSpam {
 	 */
 	public function munge_newtopic_recipients($recipients=array(), $forum_id = 0)
 	{
-		if (true === bbp_is_forum_hidden($forum_id) &&
-		    true === get_option('bbpress_notify_hidden_forum_topic_override', true))
+		if (true === (bool) bbp_is_forum_hidden($forum_id) &&
+		    true === (bool) get_option('bbpress_notify_hidden_forum_topic_override', true))
 		{
 			$recipients = 'administrator';
 		}

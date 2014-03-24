@@ -50,6 +50,12 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		
 		add_filter('bbpnns_dry_run', '__return_true');
 		
+		// Non-spam, non-empty recipents
+		$recipients = array('administrator', 'subscriber');
+		update_option('bbpress_notify_newtopic_recipients', $recipients);
+		$subs_id = $this->factory->user->create( array( 'role' => 'subscriber' ));
+		
+		
 	}
 	
 	public function tearDown()
@@ -95,13 +101,13 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		
 		// Non-spam, empty recipients returns -2
 		bbp_unspam_topic($this->topic_id);
+		delete_option('bbpress_notify_newtopic_recipients');
 		$status = $bbpnns->notify_new_topic($this->topic_id, $this->forum_id);
 		$this->assertEquals(-2, $status, 'Empty Recipients -2');
 		
 		// Non-spam, non-empty recipents
 		$recipients = array('administrator', 'subscriber');
 		update_option('bbpress_notify_newtopic_recipients', $recipients);
-		
 		$status = $bbpnns->notify_new_topic($this->topic_id, $this->forum_id);
 		$this->assertTrue(is_array($status), 'Good notify returns array in test mode');
 		
