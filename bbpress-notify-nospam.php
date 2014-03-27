@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.5.2
+* Version: 1.5.3
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -281,22 +281,41 @@ class bbPress_Notify_noSpam {
 	/**
 	 * @since 1.4
 	 */
-	private function _build_email($type, $topic_id)
+	private function _build_email($type, $post_id)
 	{
 		$email_subject = get_option("bbpress_notify_new{$type}_email_subject");
-		$email_body = get_option("bbpress_notify_new{$type}_email_body");
+		$email_body    = get_option("bbpress_notify_new{$type}_email_body");
 		
-		// Replace shortcodes
 		$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
-		$topic_title = html_entity_decode(strip_tags(bbp_get_topic_title($topic_id)), ENT_NOQUOTES, 'UTF-8');
-		$topic_content = html_entity_decode(strip_tags(bbp_get_topic_content($topic_id)), ENT_NOQUOTES, 'UTF-8');
-		
 		$excerpt_size = apply_filters('bpnns_excerpt_size', 100);
 		
-		$topic_excerpt = html_entity_decode(strip_tags(bbp_get_topic_excerpt($topic_id, $excerpt_size)), ENT_NOQUOTES, 'UTF-8');
-		$topic_author = bbp_get_topic_author($topic_id);
-		$topic_url = bbp_get_topic_permalink($topic_id);
-		$topic_reply = bbp_get_reply_url($topic_id);
+		// Replace shortcodes
+		if ('topic' === $type)
+		{
+			$topic_content = bbp_get_topic_content($post_id);
+			$topic_title   = html_entity_decode(strip_tags(bbp_get_topic_title($post_id)), ENT_NOQUOTES, 'UTF-8');
+			$topic_excerpt = html_entity_decode(strip_tags(bbp_get_topic_excerpt($post_id, $excerpt_size)), ENT_NOQUOTES, 'UTF-8');
+			$topic_author  = bbp_get_topic_author($post_id);
+			$topic_url     = bbp_get_topic_permalink($post_id);
+		}
+		elseif ('reply' === $type)
+		{
+			$topic_content = bbp_get_reply_content($post_id);
+			$topic_title   = html_entity_decode(strip_tags(bbp_get_reply_title($post_id)), ENT_NOQUOTES, 'UTF-8');
+			$topic_excerpt = html_entity_decode(strip_tags(bbp_get_reply_excerpt($post_id, $excerpt_size)), ENT_NOQUOTES, 'UTF-8');
+			$topic_author  = bbp_get_reply_author($post_id);
+			$topic_url     = bbp_get_reply_permalink($post_id);
+		}
+		else 
+		{
+			wp_die('Invalid type!');
+		}
+		
+		$topic_content = preg_replace('/<br\s*\/?>/is', "\n", $topic_content);
+		$topic_content = preg_replace('/(?:<\/p>\s*<p>)/ism', "\n\n", $topic_content);
+		$topic_content = html_entity_decode(strip_tags($topic_content), ENT_NOQUOTES, 'UTF-8');
+		
+		$topic_reply = bbp_get_reply_url($post_id);
 		
 		$email_subject = str_replace('[blogname]', $blogname, $email_subject);
 		$email_subject = str_replace("[$type-title]", $topic_title, $email_subject);
@@ -306,8 +325,6 @@ class bbPress_Notify_noSpam {
 		$email_subject = str_replace("[$type-url]", $topic_url, $email_subject);
 		$email_subject = str_replace("[$type-replyurl]", $topic_reply, $email_subject);
 		
-		preg_replace('/<br\s*\/?>/is', "\n", $topic_content);
-
 		$email_body = str_replace('[blogname]', $blogname, $email_body);
 		$email_body = str_replace("[$type-title]", $topic_title, $email_body);
 		$email_body = str_replace("[$type-content]", $topic_content, $email_body);
@@ -345,7 +362,7 @@ class bbPress_Notify_noSpam {
 		}
 		
 		if (true === apply_filters('bbpnns_dry_run', false))
-			return $recipients;
+			return array($recipients, $body);
 		
 		return true;
 	}
