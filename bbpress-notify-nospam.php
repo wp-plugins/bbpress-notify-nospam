@@ -663,7 +663,7 @@ class bbPress_Notify_noSpam {
 		?>
 		<div class="error">
 			<p>
-				<?php _e('<strong>bbPress Notify (No-Spam)</strong> could not find an active bbPress plugin. It will not load until bbPress is insstalled and active.'); ?>
+				<?php _e('<strong>bbPress Notify (No-Spam)</strong> could not find an active bbPress plugin. It will not load until bbPress is installed and active.'); ?>
 			</p>
 		</div>
 		<?php 
