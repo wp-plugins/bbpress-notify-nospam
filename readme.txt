@@ -46,6 +46,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.6 =
+* Added support for filters 'bbpnns_topic_url', 'bbpnns_reply_url', and 'bbpnns_topic_reply'
+
 = 1.5.5 =
 * Improved Tests
 * Renamed some variables.
