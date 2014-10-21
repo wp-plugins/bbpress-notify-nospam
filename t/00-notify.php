@@ -234,7 +234,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 			$post = get_post( $topic_id );
 	
 			$result = $bbpnns->notify_on_save($topic_id, $post);
-	var_dump($result);
+	
 			$this->assertFalse( empty( $result ) );
 		}
 
