@@ -73,7 +73,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		// Non-spam, non-empty recipents
 		$recipients = array('administrator', 'subscriber');
 		update_option('bbpress_notify_newtopic_recipients', $recipients);
-		$subs_id = $this->factory->user->create( array( 'role' => 'subscriber' ));
+// 		$subs_id = $this->factory->user->create( array( 'role' => 'subscriber' ));
 		
 		
 	}
@@ -204,6 +204,42 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		$recipients = apply_filters('bbpress_notify_recipients_hidden_forum', $expected_recipients, $this->forum_id);
 		list($got_recipients, $body) = $bbpnns->send_notification($recipients, 'test subject', 'test_body');
 		$this->assertEquals('administrator', $got_recipients, 'Filtered send_notification returns administrator');
+	}
+	
+	
+	public function test_notify_on_publish()
+	{
+		$bbpnns = bbPress_Notify_NoSpam::bootstrap();
+		$bbpnns->set_post_types();
+		
+		$author_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		
+		wp_set_current_user($author_id);
+		
+		$nonce_id = wp_create_nonce('bbpress_send_topic_notification_nonce');
+		
+		$_POST = array( 'bbpress_notify_send_notification'       => true,
+						'bbpress_send_topic_notification_nonce'  => $nonce_id
+		 );
+		
+		$post = array(
+				'post_content' => 'Test content',
+				'post_name'    => 'Test name',
+				'post_status'  => 'pending',
+				'post_author'  => $author_id,
+				'post_type'    => 'topic',
+		);
+		
+		$topic_id = wp_insert_post( $post );
+		
+		$post = get_post( $topic_id );
+
+		$post_after = $post;
+		$post_after->post_status = 'publish';
+		
+		$result = $bbpnns->notify_on_publish($topic_id, $post_after, $post);
+				
+		$this->assertFalse( empty( $result ) );
 	}
 	
 	

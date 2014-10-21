@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.6.1
+* Version: 1.7
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -49,14 +49,14 @@ class bbPress_Notify_noSpam {
 			
 			// Notification meta boxes if needed
 			add_action('add_meta_boxes', array(&$this,'add_notification_meta_box'), 10);
-			
-			add_action('save_post', array(&$this, 'notify_on_save'), 10, 2);
+		
+			add_action('post_updated', array(&$this, 'notify_on_publish'), 10, 3);
 		}
 		
 		// New topics and replies can be generated from admin and non-admin interfaces
 		
 		// Set the bbpress post_types
-		add_action('plugins_loaded', array(&$this,'set_post_types'));
+		add_action('init', array(&$this,'set_post_types'));
 		
 		// Triggers the notifications on new topics
 		if ( get_option('bbpress_notify_newtopic_background') )
@@ -202,7 +202,9 @@ class bbPress_Notify_noSpam {
 	{
 		global $wpdb;
 
-		if (get_post_status($topic_id) == 'spam') 
+		$status = get_post_status($topic_id); 
+		
+		if ( 'spam' === $status || 'publish' !== $status ) 
 			return -1;
 		
 		if (0 === $forum_id)
@@ -261,7 +263,9 @@ class bbPress_Notify_noSpam {
 	{
 		global $wpdb;
 	
-		if (get_post_status($reply_id) == 'spam') 
+		$status = get_post_status($reply_id);
+		
+		if ( 'spam' === $status || 'publish' !== $status )
 			return -1;
 		
 		if (true === apply_filters('bbpnns_skip_reply_notification', false, $forum_id, $topic_id, $reply_id))
@@ -623,34 +627,42 @@ class bbPress_Notify_noSpam {
 	}
 	
 	
-	function notify_on_save($post_id, $post)
+	/**
+	 * Plays nicely with moderation - basically checks if a topic/reply is being published and sends notification.
+	 * Called by "post_updated" action
+	 * @param int   $post_id
+	 * @param array $post
+	 * @param array $post_before
+	 */
+	function notify_on_publish($post_id, $post, $post_before)
 	{
-		if (empty($_POST)) return;
+		if ( ! $_POST ) return;
 		
-		if ($this->bbpress_topic_post_type !== $post->post_type && $this->bbpress_reply_post_type !== $post->post_type) return;
-		
-		if (! current_user_can('edit_post', $post_id)) return;
-		
-		if (wp_is_post_revision( $post_id )) return;
+		if ( $this->bbpress_topic_post_type !== $post->post_type && $this->bbpress_reply_post_type !== $post->post_type ) return;
+
+		if ( ! current_user_can('manage_options') && ! current_user_can('edit_post', $post_id) ) return;
+
+		if ( wp_is_post_revision( $post_id ) ) return;
+
+		if ( 'publish' !== $post->post_status && 'pending' !== $post_before->post_status) return;
 		
 		if (! isset($_POST['bbpress_notify_send_notification']) || ! $_POST['bbpress_notify_send_notification']) return;
 
 		$type = ($post->post_type === $this->bbpress_topic_post_type) ? 'topic' : 'reply';
 		if (! isset($_POST["bbpress_send_{$type}_notification_nonce"]) ||
-			! check_admin_referer( "bbpress_send_{$type}_notification_nonce", "bbpress_send_{$type}_notification_nonce" ) )
+			! wp_verify_nonce( $_POST["bbpress_send_{$type}_notification_nonce"], "bbpress_send_{$type}_notification_nonce" ) )
 		{
 			return;
 		}
 		
-		
 		// Still here, so we can notify
 		if ($post->post_type === $this->bbpress_topic_post_type)
 		{
-			$this->notify_new_topic($post_id);
+			return $this->notify_new_topic($post_id);
 		}
 		else 
 		{
-			$this->notify_new_reply($post_id);
+			return $this->notify_new_reply($post_id);
 		}
 			
 	}

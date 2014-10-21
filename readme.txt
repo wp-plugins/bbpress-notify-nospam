@@ -8,7 +8,7 @@ Tested up to: 4.0
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.6.1
+Stable tag: 1.7
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -39,6 +39,9 @@ Because the original author never answered the WP support forums (or any emails,
 = Do you plan on improving the plugin? =
 Not really. I just want to stop receiving spam from my bbPress install. However, if you want an improvement badly enough, contact me through vinny [at] usestrict [dot] net and we'll discuss it.
 
+= How does this plugin handle topics/replies held for moderation?
+When a topic/reply is held for moderation, its status is 'pending' (or something other than 'publish'). The plugin will send notifications when the topic/reply is changed from 'pending' to 'publish'.
+
 
 == Screenshots ==
 1. The settings page
@@ -46,6 +49,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.7 =
+* Added support for moderated topics/replies.
+
 = 1.6.1 =
 * Passing $post_id and $title variables to filters added in 1.6.
 
