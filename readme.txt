@@ -46,6 +46,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.6.3 =
+* Added notice about bbPress Notify Pro project at Kickstarter.
+
 = 1.6.2 =
 * Fix bug where topic and reply post_types were not set in time to send post.
 * Only send notification if post_status is publish, besides not being spam.
