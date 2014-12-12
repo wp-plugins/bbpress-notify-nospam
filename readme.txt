@@ -17,10 +17,15 @@ This is a modification of the original bbPress-Notify plugin, after several fail
 This plugin integrates into bbPress and sends a notification via e-mail when new topics or replies are posted. It is fully configurable in the bbPress settings.
 
 Settings include:
-* Notification recipients for new topics, 
-* Notification recipients for new replies, 
-* Notification e-mail's subject and body for both new topics and replies
-* Set Background Notifications (no longer causes delays in loading pages for large user databases)
+ * Notification recipients for new topics, 
+ * Notification recipients for new replies, 
+ * Notification e-mail's subject and body for both new topics and replies
+ * Set Background Notifications (no longer causes delays in loading pages for large user databases)
+
+= bbPress Notify Pro =
+
+We're trying to raise funds to build the Pro version of this plugin. It will include all of the features of bbpress Notify (no-spam) plus lots of other goodies that have been asked for by our users.
+Please have a look at the [Kickstarter page](https://www.kickstarter.com/projects/usestrict/bbpress-notify-pro-for-wordpress) for all the details and help us reach the project goal! 
 
 
 == Installation ==
