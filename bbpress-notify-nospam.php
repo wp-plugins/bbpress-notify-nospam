@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.6.3.1
+* Version: 1.6.4
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -17,7 +17,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
-* Copyright (C) 2012-2013 www.usestrict.net, released under the GNU General Public License.
+* Copyright (C) 2012-2015 www.usestrict.net, released under the GNU General Public License.
 */
 
 /* Search for translations */
@@ -385,18 +385,27 @@ class bbPress_Notify_noSpam {
 		$headers = sprintf("From: %s <%s>\r\n", get_option('blogname'), get_bloginfo('admin_email'));
 		$headers = apply_filters('bbpnns_extra_headers', $headers, $recipients, $subject, $body);
 		
+		// Allow Management of recipients list
+		$recipients = apply_filters('bbpnns-filter-recipients', $recipients);
 		
 		foreach ( (array) $recipients as $recipient_id)
 		{
 			$user_info = get_userdata($recipient_id);
 			
+			/**
+			 * Allow per subject and per body modifications
+			 * @since 1.6.4 
+			 */ 
+			$filtered_subject = apply_filters('bbpnns-filter-email-subject', $subject, $user_info);
+			$filtered_body    = apply_filters('bbpnns-filter-email-body', $body, $user_info);
+			
 			$email = ($recipient_id == -1) ? get_bloginfo('admin_email') : (string) $user_info->user_email ; 
 
 			if (false === apply_filters('bbpnns_dry_run', false))
 			{
-				if ( ! wp_mail($email, $subject, $body, $headers) )
+				if ( ! wp_mail($email, $filtered_subject, $filtered_body, $headers) )
 				{
-					error_log('wp_mail failed: ' . print_r(error_get_last(),1));
+					error_log('[bbPress Notify No Spam] wp_mail failed: ' . print_r(error_get_last(),1));
 					return false;
 				}
 			}
