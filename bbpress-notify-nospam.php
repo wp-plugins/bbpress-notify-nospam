@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.6.5
+* Version: 1.6.6
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -252,6 +252,10 @@ class bbPress_Notify_noSpam {
 			}
 		}
 
+		/**
+		 * Allow topic recipients munging
+		 * @since 1.6.5
+		 */
 		$recipients = apply_filters('bbpress_topic_notify_recipients', $recipients, $topic_id, $forum_id);
 
 		if ( empty($recipients) )
@@ -312,6 +316,10 @@ class bbPress_Notify_noSpam {
 			}
 		}
 
+		/**
+		 * Allow reply recipients munging
+		 * @since 1.6.5
+		 */
 		$recipients = apply_filters('bbpress_reply_notify_recipients', $recipients, $reply_id, $topic_id, $forum_id);
 
 		if ( empty($recipients) )
@@ -378,6 +386,13 @@ class bbPress_Notify_noSpam {
 		$email_body = str_replace("[$type-url]", $url, $email_body);
 		$email_body = str_replace("[$type-replyurl]", $topic_reply, $email_body);
 		
+		/**
+		 * Allow subject and body modifications
+		 * @since 1.6.6
+		 */
+		$email_subject = apply_filters('bbpnns_filter_email_subject_in_build', $email_subject);
+		$email_body    = apply_filters('bbpnns_filter_email_body_in_build', $email_body);
+		
 		return array($email_subject, $email_body);
 	}
 	
@@ -390,18 +405,18 @@ class bbPress_Notify_noSpam {
 		$headers = apply_filters('bbpnns_extra_headers', $headers, $recipients, $subject, $body);
 		
 		// Allow Management of recipients list
-		$recipients = apply_filters('bbpnns-filter-recipients', $recipients);
+		$recipients = apply_filters('bbpnns_filter_recipients_before_send', $recipients);
 		
 		foreach ( (array) $recipients as $recipient_id)
 		{
 			$user_info = get_userdata($recipient_id);
 			
 			/**
-			 * Allow per subject and per body modifications
+			 * Allow per user subject and body modifications
 			 * @since 1.6.4 
 			 */ 
-			$filtered_subject = apply_filters('bbpnns-filter-email-subject', $subject, $user_info);
-			$filtered_body    = apply_filters('bbpnns-filter-email-body', $body, $user_info);
+			$filtered_subject = apply_filters('bbpnns_filter_email_subject_for_user', $subject, $user_info);
+			$filtered_body    = apply_filters('bbpnns_filter_email_body_for_user', $body, $user_info);
 			
 			$email = ($recipient_id == -1) ? get_bloginfo('admin_email') : (string) $user_info->user_email ; 
 
