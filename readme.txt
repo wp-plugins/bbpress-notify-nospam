@@ -52,6 +52,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.6.6.1 =
+* Removed Pro message.
+
 = 1.6.6 =
 * Added subject filter in _build_email: bbpnns_filter_email_subject_in_build
 * Added body filter in _build_email: bbpnns_filter_email_body_in_build
