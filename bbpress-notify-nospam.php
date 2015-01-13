@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.6.4
+* Version: 1.6.5
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -227,23 +227,23 @@ class bbPress_Notify_noSpam {
 		global $wpdb;
 
 		$status = get_post_status($topic_id); 
-		
-		if ( 'spam' === $status || 'publish' !== $status ) 
+
+		if ( 'spam' === $status || 'publish' !== $status )
 			return -1;
-		
+
 		if (0 === $forum_id)
 			$forum_id = bbp_get_topic_forum_id($topic_id);
-		
+
 		if (true === apply_filters('bbpnns_skip_topic_notification', false, $forum_id, $topic_id))
 			return -3;
-		
+
 		$opt_recipients = apply_filters('bbpress_notify_recipients_hidden_forum', get_option('bbpress_notify_newtopic_recipients'), $forum_id);
-		
+
 		$recipients = array();
 		foreach ((array)$opt_recipients as $opt_recipient)
 		{
 			if (! $opt_recipient) continue;
-				
+
 			$users = get_users(array('role' => $opt_recipient));
 			foreach ((array)$users as $user)
 			{
@@ -251,12 +251,14 @@ class bbPress_Notify_noSpam {
 				$recipients[$user['ID']] = $user['ID']; // make sure unique recepients
 			}
 		}
-		
-		if ( empty($recipients) ) 
+
+		$recipients = apply_filters('bbpress_topic_notify_recipients', $recipients, $topic_id, $forum_id);
+
+		if ( empty($recipients) )
 			return -2;
-		
+
 		list($email_subject, $email_body) = $this->_build_email('topic', $topic_id);
-	
+
 		return $this->send_notification($recipients, $email_subject, $email_body);
 	}
 	
@@ -286,22 +288,22 @@ class bbPress_Notify_noSpam {
 	function notify_new_reply($reply_id = 0, $topic_id = 0, $forum_id = 0)
 	{
 		global $wpdb;
-	
+
 		$status = get_post_status($reply_id); 
-		
+
 		if ( 'spam' === $status || 'publish' !== $status )
 			return -1;
-		
+
 		if (true === apply_filters('bbpnns_skip_reply_notification', false, $forum_id, $topic_id, $reply_id))
 			return -3;
-	
+
 		$opt_recipients = apply_filters('bbpress_notify_recipients_hidden_forum', get_option('bbpress_notify_newreply_recipients'), $forum_id);
-		
+
 		$recipients = array();
 		foreach ((array)$opt_recipients as $opt_recipient)
 		{
 			if (! $opt_recipient) continue;
-				
+
 			$users = get_users(array('role' => $opt_recipient));
 			foreach ((array)$users as $user)
 			{
@@ -309,12 +311,14 @@ class bbPress_Notify_noSpam {
 				$recipients[$user['ID']] = $user['ID']; // make sure unique recepients
 			}
 		}
-	
-		if ( empty($recipients) ) 
+
+		$recipients = apply_filters('bbpress_reply_notify_recipients', $recipients, $reply_id, $topic_id, $forum_id);
+
+		if ( empty($recipients) )
 			return -2;
-	
+
 		list($email_subject, $email_body) = $this->_build_email('reply', $reply_id);
-	
+
 		return $this->send_notification($recipients, $email_subject, $email_body);
 	}
 	
