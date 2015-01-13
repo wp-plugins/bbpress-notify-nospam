@@ -8,7 +8,7 @@ Tested up to: 4.1
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.6.5
+Stable tag: 1.6.6
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -52,6 +52,13 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.6.6 =
+* Added subject filter in _build_email: bbpnns_filter_email_subject_in_build
+* Added body filter in _build_email: bbpnns_filter_email_body_in_build
+* Renamed filter: bbpnns-filter-recipients => bbpnns_filter_recipients_before_send
+* Renamed filter: bbpnns-filter-email-subject => bbpnns_filter_email_subject_for_user
+* Renamed filter: bbpnns-filter-email-body => bbpnns_filter_email_body_for_user
+
 = 1.6.5 =
 * Added user-contributed filters: bbpress_reply_notify_recipients, and bbpress_topic_notify_recipients
 
