@@ -19,13 +19,13 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 	
 	public function __construct()
 	{
-		$this->topic_body = "<p>This is <br> a <br /> test paragraph for topic URL: [topic-url], and Author: [topic-author]</p>\n\n<p>And a new <br/>paragraph</p>";
+		$this->topic_body = "<p>This is <br> a <br /> test paragraph for topic forum [topic-forum], URL: [topic-url], and Author: [topic-author]</p>\n\n<p>And a new <br/>paragraph</p>";
 		
-		$this->reply_body = "<p>This is <br> a <br /> test paragraph for reply URL: [reply-url], and Author: [reply-author]</p>\n\n<p>And a new <br/>paragraph</p>";
+		$this->reply_body = "<p>This is <br> a <br /> test paragraph for reply forum [reply-forum], URL: [reply-url], and Author: [reply-author]</p>\n\n<p>And a new <br/>paragraph</p>";
 		
-		$this->topic_body_clean = "This is  a  test paragraph for topic URL: [topic-url], and Author: [topic-author]\n\nAnd a new paragraph\n";
+		$this->topic_body_clean = "This is \n a \n test paragraph for topic forum [topic-forum], URL: [topic-url], and Author: [topic-author]\n\nAnd a new \nparagraph\n";
 		
-		$this->reply_body_clean = "This is  a  test paragraph for reply URL: [reply-url], and Author: [reply-author]\n\nAnd a new paragraph\n";
+		$this->reply_body_clean = "This is \n a \n test paragraph for reply forum [reply-forum], URL: [reply-url], and Author: [reply-author]\n\nAnd a new \nparagraph\n";
 	}
 	
 	
@@ -137,6 +137,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		
 		$reg_body = str_replace('[topic-url]', '[^ ,]+', $this->topic_body_clean );
 		$reg_body = str_replace('[topic-author]', 'admin', $reg_body );
+		$reg_body = str_replace('[topic-forum]', 'test-forum', $reg_body );
 		
 		$this->assertRegexp("/$reg_body/", $body, 'Topic body munged correctly');
 		
@@ -178,6 +179,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		
 		$reg_body = str_replace('[reply-url]', '[^ ,]+', $this->replyc_body_clean );
 		$reg_body = str_replace('[reply-author]', 'admin', $reg_body );
+		$reg_body = str_replace('[reply-forum]', 'test-forum', $reg_body );
 		
 		$this->assertRegexp("/$reg_body/", $body, 'Reply body munged correctly');
 		
