@@ -4,11 +4,11 @@ Author URI: http://www.usestrict.net/
 Plugin URI: http://usestrict.net/2013/02/bbpress-notify-nospam/
 Tags: bbpress, email notification, no spam
 Requires at least: 3.1
-Tested up to: 4.1
+Tested up to: 4.1.1
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.6.6.1
+Stable tag: 1.6.7
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -52,6 +52,9 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 
 
 == Changelog ==
+= 1.6.7 =
+* Added support for tags [topic-forum], and [reply-forum]. ([Towfiq I.](https://wordpress.org/support/topic/feature-forum-name-in-email))
+
 = 1.6.6.1 =
 * Removed Pro message.
 
@@ -118,7 +121,7 @@ Not really. I just want to stop receiving spam from my bbPress install. However,
 * Added: Settings link in Plugins page.
 * Added: Logging failed wp_mail call.
 * Added: Option to send notifications when adding/updating a topic or reply in the admin.
-* Added: Enforce replacement of &lt;br&gt; tags for newlines.
+* Added: Enforce replacement of <br> tags for newlines.
 
 = 1.3 =
 * New: Added background notifications
@@ -164,4 +167,4 @@ In some installs, people were getting duplicate emails. We're making sure that o
 Fixes an error in preg_replace. Update is strongly recommended.
 
 = 1.4 =
-Fixes a couple of strict notices, and adds Settings action link, swaps &lt;br&gt; tags for newlines and enables sending notifications when creating a topic or reply from the admin UI. 
+Fixes a couple of strict notices, and adds Settings action link, swaps <br> tags for newlines and enables sending notifications when creating a topic or reply from the admin UI.

@@ -2,7 +2,7 @@
 /*
 * Plugin Name: bbPress Notify (No-Spam)
 * Description: Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version: 1.6.6.1
+* Version: 1.6.7
 * Author: Vinny Alves, Andreas Baumgartner, Paul Schroeder
 * License:       GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -161,7 +161,7 @@ class bbPress_Notify_noSpam {
 			$url = add_query_arg( array( 'dismiss-bbpnp' => 1), $_SERVER['REQUEST_URI'] );
             ?>
 				<div class="updated">
-                <p><?php _e( sprintf('Have you heard about the <strong><a href="https://www.kickstarter.com/projects/usestrict/bbpress-notify-pro-for-wordpress" target    ="_new">bbPress Notify Pro</a></strong> project at Kickstarter? ' .
+                <p><?php _e( sprintf('Have you heard about the <strong><a href="https://www.kickstarter.com/projects/usestrict/bbpress-notify-pro-for-wordpress" target="_new">bbPress Notify Pro</a></strong> project at Kickstarter? ' .
 									 'Help us reach the goal and get a nifty reward =] ! | <a href="%s">Dismiss</a>.',$url), $this->domain ); ?></p>
 				</div>
 			<?php
@@ -353,6 +353,7 @@ class bbPress_Notify_noSpam {
 			$excerpt = html_entity_decode(strip_tags(bbp_get_topic_excerpt($post_id, $excerpt_size)), ENT_NOQUOTES, 'UTF-8');
 			$author  = bbp_get_topic_author($post_id);
 			$url     = apply_filters( 'bbpnns_topic_url', bbp_get_topic_permalink($post_id), $post_id, $title );
+			$forum 	 = html_entity_decode(strip_tags(get_the_title(bbp_get_topic_forum_id($post_id))), ENT_NOQUOTES, 'UTF-8');
 		}
 		elseif ('reply' === $type)
 		{
@@ -361,14 +362,15 @@ class bbPress_Notify_noSpam {
 			$excerpt = html_entity_decode(strip_tags(bbp_get_reply_excerpt($post_id, $excerpt_size)), ENT_NOQUOTES, 'UTF-8');
 			$author  = bbp_get_reply_author($post_id);
 			$url     = apply_filters( 'bbpnns_reply_url', bbp_get_reply_permalink($post_id), $post_id, $title );
+			$forum 	 = html_entity_decode(strip_tags(get_the_title(bbp_get_reply_forum_id($post_id))), ENT_NOQUOTES, 'UTF-8');
 		}
 		else 
 		{
 			wp_die('Invalid type!');
 		}
 		
-		$content = preg_replace('/<br\s*\/?>/is', "\n", $content);
-		$content = preg_replace('/(?:<\/p>\s*<p>)/ism', "\n\n", $content);
+		$content = preg_replace('/<br\s*\/?>/is', PHP_EOL, $content);
+		$content = preg_replace('/(?:<\/p>\s*<p>)/ism', PHP_EOL . PHP_EOL, $content);
 		$content = html_entity_decode(strip_tags($content), ENT_NOQUOTES, 'UTF-8');
 		
 		$topic_reply = apply_filters( 'bbpnns_topic_reply', bbp_get_reply_url($post_id), $post_id, $title );
@@ -380,6 +382,7 @@ class bbPress_Notify_noSpam {
 		$email_subject = str_replace("[$type-author]", $author, $email_subject);
 		$email_subject = str_replace("[$type-url]", $url, $email_subject);
 		$email_subject = str_replace("[$type-replyurl]", $topic_reply, $email_subject);
+		$email_subject = str_replace("[$type-forum]", $forum, $email_subject);
 		
 		$email_body = str_replace('[blogname]', $blogname, $email_body);
 		$email_body = str_replace("[$type-title]", $title, $email_body);
@@ -388,6 +391,7 @@ class bbPress_Notify_noSpam {
 		$email_body = str_replace("[$type-author]", $author, $email_body);
 		$email_body = str_replace("[$type-url]", $url, $email_body);
 		$email_body = str_replace("[$type-replyurl]", $topic_reply, $email_body);
+		$email_body = str_replace("[$type-forum]", $forum, $email_body);
 		
 		/**
 		 * Allow subject and body modifications
@@ -458,7 +462,7 @@ class bbPress_Notify_noSpam {
 		add_settings_field('bbpress_notify_hidden_forum_topic_override', __('Force Admin-only emails if Forum is hidden (topics)', 'bbpress_notify'), array(&$this,'_hidden_forum_topic_override'), 'bbpress', 'bbpress_notify_options');
 		
 		add_settings_field('bbpress_notify_newtopic_email_subject', __('E-mail subject', 'bbpress_notify'), array(&$this,'_email_newtopic_subject_inputfield'), 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newtopic_email_body', __('E-mail body (template tags: [blogname], [topic-title], [topic-content], [topic-excerpt], [topic-author], [topic-url], [topic-replyurl])', 'bbpress_notify'), array(&$this,'_email_newtopic_body_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newtopic_email_body', __('E-mail body (template tags: [blogname], [topic-forum], [topic-title], [topic-content], [topic-excerpt], [topic-author], [topic-url], [topic-replyurl])', 'bbpress_notify'), array(&$this,'_email_newtopic_body_inputfield'), 'bbpress', 'bbpress_notify_options');
 		
 		add_settings_field('bbpress_notify_newreply_background', __('Background Reply Notifications', 'bbpress_notify'), array(&$this,'_reply_background_inputfield'), 'bbpress', 'bbpress_notify_options');
 		
@@ -470,7 +474,7 @@ class bbPress_Notify_noSpam {
 		
 		
 		add_settings_field('bbpress_notify_newreply_email_subject', __('E-mail subject', 'bbpress_notify'), array(&$this,'_email_newreply_subject_inputfield'), 'bbpress', 'bbpress_notify_options');
-		add_settings_field('bbpress_notify_newreply_email_body', __('E-mail body (template tags: [blogname], [reply-title], [reply-content], [reply-excerpt], [reply-author], [reply-url], [reply-replyurl])', 'bbpress_notify'), array(&$this,'_email_newreply_body_inputfield'), 'bbpress', 'bbpress_notify_options');
+		add_settings_field('bbpress_notify_newreply_email_body', __('E-mail body (template tags: [blogname], [reply-forum], [reply-title], [reply-content], [reply-excerpt], [reply-author], [reply-url], [reply-replyurl])', 'bbpress_notify'), array(&$this,'_email_newreply_body_inputfield'), 'bbpress', 'bbpress_notify_options');
 	
 		// Register the settings as part of the bbPress settings
 		register_setting('bbpress', 'bbpress_notify_newtopic_recipients');
