@@ -4,7 +4,7 @@ Author URI: http://www.usestrict.net/
 Plugin URI: http://usestrict.net/2013/02/bbpress-notify-nospam/
 Tags: bbpress, email notification, no spam
 Requires at least: 3.1
-Tested up to: 4.0
+Tested up to: 4.1.1
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -17,31 +17,32 @@ This is a modification of the original bbPress-Notify plugin, after several fail
 This plugin integrates into bbPress and sends a notification via e-mail when new topics or replies are posted. It is fully configurable in the bbPress settings.
 
 Settings include:
-* Notification recipients for new topics, 
-* Notification recipients for new replies, 
-* Notification e-mail's subject and body for both new topics and replies
-* Set Background Notifications (no longer causes delays in loading pages for large user databases)
+
+ * Notification recipients for new topics, 
+ * Notification recipients for new replies, 
+ * Notification e-mail's subject and body for both new topics and replies
+ * Set Background Notifications (no longer causes delays in loading pages for large user databases)
+ * Extensible through several handy filters
+
+= Premium Add-Ons =
+
+ * [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/) Allow your audience to choose not to receive notifications. A must-have for CAN-SPAM laws! 
 
 
 == Installation ==
 
 1. Upload the entire plugin folder via FTP to `/wp-content/plugins/`.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Go to the Settings -> Forums and select which group our groups should get notifications. 
+3. Go to the <strong>Settings -> Forums</strong> and select which group our groups should get notifications. 
 
 == Frequently Asked Questions ==
-= Did you write this plugin? =
-No, I simply added a spam filter and a couple of other improvements.
+= Can a user turn off notifications? =
+ * Originally, this plugin was developed to alert Administrators of new topics and replies. After a few iterations, users requested that I add the ability to send
+messages to other roles, which then could be characterized as spam. To allow your users to opt-out from receiving notifications, please consider purchasing 
+the [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/).
 
-= Why did you do this? =
-Because the original author never answered the WP support forums (or any emails, for that matter).
-
-= Do you plan on improving the plugin? =
-Not really. I just want to stop receiving spam from my bbPress install. However, if you want an improvement badly enough, contact me through vinny [at] usestrict [dot] net and we'll discuss it.
-
-= How does this plugin handle topics/replies held for moderation?
-When a topic/reply is held for moderation, its status is 'pending' (or something other than 'publish'). The plugin will send notifications when the topic/reply is changed from 'pending' to 'publish'.
-
+= Does this plugin integrate with BuddyPress Groups? =
+ * Not at this moment.
 
 == Screenshots ==
 1. The settings page
@@ -50,7 +51,39 @@ When a topic/reply is held for moderation, its status is 'pending' (or something
 
 == Changelog ==
 = 1.7 =
-* Added support for moderated topics/replies.
+* Added support for Opt-Out add-on
+* Added labels to all input fields
+
+= 1.6.7 =
+* Added support for tags [topic-forum], and [reply-forum]. ([Towfiq I.](https://wordpress.org/support/topic/feature-forum-name-in-email))
+
+= 1.6.6.1 =
+* Removed Pro message.
+
+= 1.6.6 =
+* Added subject filter in _build_email: bbpnns_filter_email_subject_in_build
+* Added body filter in _build_email: bbpnns_filter_email_body_in_build
+* Renamed filter: bbpnns-filter-recipients => bbpnns_filter_recipients_before_send
+* Renamed filter: bbpnns-filter-email-subject => bbpnns_filter_email_subject_for_user
+* Renamed filter: bbpnns-filter-email-body => bbpnns_filter_email_body_for_user
+
+= 1.6.5 =
+* Added user-contributed filters: bbpress_reply_notify_recipients, and bbpress_topic_notify_recipients
+
+= 1.6.4 =
+* Added filters: bbpnns-filter-recipients, bbpnns-filter-email-subject, and bbpnns-filter-email-body
+
+= 1.6.3.1 =
+* Fixed: buggy dismiss link in previous commit.
+
+= 1.6.3 =
+* Added notice about bbPress Notify Pro project at Kickstarter.
+
+= 1.6.2 =
+* Fix bug where topic and reply post_types were not set in time to send post.
+* Only send notification if post_status is publish, besides not being spam.
+* Adjustments to notify_on_save
+* Added tests for notify_on_save
 
 = 1.6.1 =
 * Passing $post_id and $title variables to filters added in 1.6.
@@ -90,7 +123,7 @@ When a topic/reply is held for moderation, its status is 'pending' (or something
 * Added: Settings link in Plugins page.
 * Added: Logging failed wp_mail call.
 * Added: Option to send notifications when adding/updating a topic or reply in the admin.
-* Added: Enforce replacement of &lt;br&gt; tags for newlines.
+* Added: Enforce replacement of <br> tags for newlines.
 
 = 1.3 =
 * New: Added background notifications
@@ -136,4 +169,4 @@ In some installs, people were getting duplicate emails. We're making sure that o
 Fixes an error in preg_replace. Update is strongly recommended.
 
 = 1.4 =
-Fixes a couple of strict notices, and adds Settings action link, swaps &lt;br&gt; tags for newlines and enables sending notifications when creating a topic or reply from the admin UI. 
+Fixes a couple of strict notices, and adds Settings action link, swaps <br> tags for newlines and enables sending notifications when creating a topic or reply from the admin UI.

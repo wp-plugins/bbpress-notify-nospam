@@ -19,13 +19,13 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 	
 	public function __construct()
 	{
-		$this->topic_body = "<p>This is <br> a <br /> test paragraph for topic URL: [topic-url], and Author: [topic-author]</p>\n\n<p>And a new <br/>paragraph</p>";
+		$this->topic_body = "<p>This is <br> a <br /> test paragraph for topic forum [topic-forum], URL: [topic-url], and Author: [topic-author]</p>\n\n<p>And a new <br/>paragraph</p>";
 		
-		$this->reply_body = "<p>This is <br> a <br /> test paragraph for reply URL: [reply-url], and Author: [reply-author]</p>\n\n<p>And a new <br/>paragraph</p>";
+		$this->reply_body = "<p>This is <br> a <br /> test paragraph for reply forum [reply-forum], URL: [reply-url], and Author: [reply-author]</p>\n\n<p>And a new <br/>paragraph</p>";
 		
-		$this->topic_body_clean = "This is  a  test paragraph for topic URL: [topic-url], and Author: [topic-author]\n\nAnd a new paragraph\n";
+		$this->topic_body_clean = "This is \n a \n test paragraph for topic forum [topic-forum], URL: [topic-url], and Author: [topic-author]\n\nAnd a new \nparagraph\n";
 		
-		$this->reply_body_clean = "This is  a  test paragraph for reply URL: [reply-url], and Author: [reply-author]\n\nAnd a new paragraph\n";
+		$this->reply_body_clean = "This is \n a \n test paragraph for reply forum [reply-forum], URL: [reply-url], and Author: [reply-author]\n\nAnd a new \nparagraph\n";
 	}
 	
 	
@@ -73,7 +73,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		// Non-spam, non-empty recipents
 		$recipients = array('administrator', 'subscriber');
 		update_option('bbpress_notify_newtopic_recipients', $recipients);
-// 		$subs_id = $this->factory->user->create( array( 'role' => 'subscriber' ));
+		$subs_id = $this->factory->user->create( array( 'role' => 'subscriber' ));
 		
 		
 	}
@@ -137,6 +137,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		
 		$reg_body = str_replace('[topic-url]', '[^ ,]+', $this->topic_body_clean );
 		$reg_body = str_replace('[topic-author]', 'admin', $reg_body );
+		$reg_body = str_replace('[topic-forum]', 'test-forum', $reg_body );
 		
 		$this->assertRegexp("/$reg_body/", $body, 'Topic body munged correctly');
 		
@@ -178,6 +179,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		
 		$reg_body = str_replace('[reply-url]', '[^ ,]+', $this->replyc_body_clean );
 		$reg_body = str_replace('[reply-author]', 'admin', $reg_body );
+		$reg_body = str_replace('[reply-forum]', 'test-forum', $reg_body );
 		
 		$this->assertRegexp("/$reg_body/", $body, 'Reply body munged correctly');
 		
@@ -206,41 +208,38 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		$this->assertEquals('administrator', $got_recipients, 'Filtered send_notification returns administrator');
 	}
 	
-	
-	public function test_notify_on_publish()
+	public function test_notify_on_save()
 	{
-		$bbpnns = bbPress_Notify_NoSpam::bootstrap();
-		$bbpnns->set_post_types();
-		
-		$author_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		
-		wp_set_current_user($author_id);
-		
-		$nonce_id = wp_create_nonce('bbpress_send_topic_notification_nonce');
-		
-		$_POST = array( 'bbpress_notify_send_notification'       => true,
-						'bbpress_send_topic_notification_nonce'  => $nonce_id
-		 );
-		
-		$post = array(
-				'post_content' => 'Test content',
-				'post_name'    => 'Test name',
-				'post_status'  => 'pending',
-				'post_author'  => $author_id,
-				'post_type'    => 'topic',
-		);
-		
-		$topic_id = wp_insert_post( $post );
-		
-		$post = get_post( $topic_id );
+			$bbpnns = bbPress_Notify_NoSpam::bootstrap();
+			$bbpnns->set_post_types();
+	
+			$author_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+	
+			wp_set_current_user($author_id);
+	
+			$nonce_id = wp_create_nonce('bbpress_send_topic_notification_nonce');
+	
+			$_POST = array( 'bbpress_notify_send_notification'       => true,
+							'bbpress_send_topic_notification_nonce'  => $nonce_id
+					 );
+	
+			$post = array(
+							'post_content' => 'Test content',
+							'post_name'    => 'Test name',
+							'post_status'  => 'publish',
+							'post_author'  => $author_id,
+							'post_type'    => 'topic',
+					);
+	
+			$topic_id = wp_insert_post( $post );
+	
+			$post = get_post( $topic_id );
+	
+			$result = $bbpnns->notify_on_save($topic_id, $post);
+	
+			$this->assertFalse( empty( $result ) );
+		}
 
-		$post_after = $post;
-		$post_after->post_status = 'publish';
-		
-		$result = $bbpnns->notify_on_publish($topic_id, $post_after, $post);
-				
-		$this->assertFalse( empty( $result ) );
-	}
 	
 	
 	public function test_filters()
