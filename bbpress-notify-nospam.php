@@ -2,7 +2,7 @@
 /*
 * Plugin Name:  bbPress Notify (No-Spam)
 * Description:  Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version:      1.7
+* Version:      1.7.1
 * Author:       Vinny Alves
 * License:      GNU General Public License, v2 (or newer)
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ load_plugin_textdomain('bbpress_notify',false, dirname( plugin_basename( __FILE_
 
 class bbPress_Notify_noSpam {
 	
-	const VERSION = '1.7';
+	const VERSION = '1.7.1';
 	
 	protected $settings_section = 'bbpress_notify_options';
 	protected $bbpress_topic_post_type;
@@ -56,7 +56,7 @@ class bbPress_Notify_noSpam {
 			
 			add_action('save_post', array(&$this, 'notify_on_save'), 10, 2);
 			
-// 			add_action( 'admin_notices', array( &$this, 'maybe_show_pro_message' ) );
+			add_action( 'admin_notices', array( &$this, 'maybe_show_admin_message' ) );
 		}
 		
 		// New topics and replies can be generated from admin and non-admin interfaces
@@ -152,22 +152,26 @@ class bbPress_Notify_noSpam {
 	/**
 	 * Deprecated, the project did not get backing.
 	 */
-	function maybe_show_pro_message()
+	function maybe_show_admin_message()
 	{
-		if ( isset($_GET['dismiss-bbpnp']) )
+		$dismiss_key = 'bbpnns-dismissed-1_7_1';
+		
+		if ( isset( $_GET[$dismiss_key])  )
 		{
-			update_option('bbpress-notify-pro-dismissed', true);
+			delete_option('bbpress-notify-pro-dismissed');
+			update_option($dismiss_key, true);
 		}
-		elseif ( ! get_option('bbpress-notify-pro-dismissed') )
+		elseif ( ! get_option($dismiss_key) )
 		{
-			$url = add_query_arg( array( 'dismiss-bbpnp' => 1), $_SERVER['REQUEST_URI'] );
+			$add_on_url  = 'http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/'; 
+			$dismiss_url = add_query_arg( array( $dismiss_key => 1), $_SERVER['REQUEST_URI'] );
             ?>
 				<div class="updated">
-                <p><?php _e( sprintf('Have you heard about the <strong><a href="https://www.kickstarter.com/projects/usestrict/bbpress-notify-pro-for-wordpress" target="_new">bbPress Notify Pro</a></strong> project at Kickstarter? ' .
-									 'Help us reach the goal and get a nifty reward =] ! | <a href="%s">Dismiss</a>.',$url), $this->domain ); ?></p>
+                <p><?php _e( sprintf( '<div style="display:inline">Users asked and we delivered! Allow your subscribers to opt-out 
+									   from receiving your notifications with <a href="%s" target="_new"><strong>bbPress Notify (No Spam) Opt Out Add On</strong></a>.</div> 
+									   <div style="float:right"><a href="%s">Dismiss</a></div>', $add_on_url, $dismiss_url ), $this->domain ); ?></p>
 				</div>
 			<?php
-			 
 		}
 	}
 	
