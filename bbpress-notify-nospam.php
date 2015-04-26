@@ -2,7 +2,7 @@
 /*
 * Plugin Name:  bbPress Notify (No-Spam)
 * Description:  Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version:      1.7.2
+* Version:      1.7.3
 * Author:       Vinny Alves
 * License:      GNU General Public License, v2 ( or newer )
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ load_plugin_textdomain( 'bbpress_notify',false, dirname( plugin_basename( __FILE
 
 class bbPress_Notify_noSpam {
 	
-	const VERSION = '1.7.2';
+	const VERSION = '1.7.3';
 	
 	protected $settings_section = 'bbpress_notify_options';
 	
@@ -58,7 +58,7 @@ class bbPress_Notify_noSpam {
 			
 			add_action( 'save_post', array( &$this, 'notify_on_save' ), 10, 2 );
 			
-			add_action( 'admin_notices', array( &$this, 'maybe_show_admin_message' ) );
+// 			add_action( 'admin_notices', array( &$this, 'maybe_show_admin_message' ) );
 		}
 		
 		// New topics and replies can be generated from admin and non-admin interfaces
