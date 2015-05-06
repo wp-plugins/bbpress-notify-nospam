@@ -205,9 +205,9 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		bbp_hide_forum( $this->forum_id );
 		$recipients = apply_filters( 'bbpress_notify_recipients_hidden_forum', $expected_recipients, $this->forum_id );
 		list( $got_recipients, $body ) = $bbpnns->send_notification( $recipients, 'test subject', 'test_body' );
-		var_dump($got_recipients);
 		
-		$this->assertEquals( 'administrator', $got_recipients, 'Filtered send_notification returns administrator' );
+		$this->assertTrue( is_array( $got_recipients ), 'Got an array back');
+		$this->assertTrue( in_array( 'administrator', $got_recipients ), 'Filtered send_notification returns administrator' );
 	}
 	
 	public function test_notify_on_save()

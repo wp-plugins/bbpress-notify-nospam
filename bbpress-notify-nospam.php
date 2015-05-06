@@ -240,8 +240,8 @@ class bbPress_Notify_noSpam {
 
 		$status = get_post_status( $topic_id ); 
 
-		if (   in_array( $status, apply_filters( 'bbpnns_post_status_blacklist', array( 'spam' ) ) ) || 
-			 ! in_array( $status, apply_filters( 'bbpnns_post_status_whitelist', array( 'publish' ) ) ) )
+		if (   in_array( $status, (array) apply_filters( 'bbpnns_post_status_blacklist', array( 'spam' ), $status, $forum_id, $topic_id, $reply_id=false ) ) || 
+			 ! in_array( $status, (array) apply_filters( 'bbpnns_post_status_whitelist', array( 'publish' ), $status, $forum_id, $topic_id, $reply_id=false ) ) )
 			return -1;
 
 		if ( 0 === $forum_id )
@@ -311,8 +311,8 @@ class bbPress_Notify_noSpam {
 		if ( 0 === $forum_id )
 			$forum_id = bbp_get_reply_forum_id( $reply_id );
 		
-		if (   in_array( $status, apply_filters( 'bbpnns_post_status_blacklist', array( 'spam' ) ) ) || 
-			 ! in_array( $status, apply_filters( 'bbpnns_post_status_whitelist', array( 'publish' ) ) ) )
+		if (   in_array( $status, (array) apply_filters( 'bbpnns_post_status_blacklist', array( 'spam' ), $status, $forum_id, $topic_id, $reply_id ) ) || 
+			 ! in_array( $status, (array) apply_filters( 'bbpnns_post_status_whitelist', array( 'publish' ), $status, $forum_id, $topic_id, $reply_id ) ) )
 			return -1;
 
 		if ( true === apply_filters( 'bbpnns_skip_reply_notification', false, $forum_id, $topic_id, $reply_id ) )
