@@ -4,11 +4,11 @@ Author URI: http://www.usestrict.net/
 Plugin URI: http://usestrict.net/2013/02/bbpress-notify-nospam/
 Tags: bbpress, email notification, no spam
 Requires at least: 3.1
-Tested up to: 4.2
+Tested up to: 4.3-alpha-32294
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.7.3
+Stable tag: 1.8
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -50,6 +50,14 @@ the [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out
 
 
 == Changelog ==
+= 1.8 =
+* New Filter: bbpnns_post_status_blacklist
+* New Filter: bbpnns_post_status_whitelist
+* New Action: bbpnns_before_topic_settings
+* New Action: bbpnns_after_topic_settings
+* New Action: bbpnns_after_reply_settings
+* New Action: bbpnns_register_settings  
+
 = 1.7.3 =
 * Remove admin message as it's not getting dismissed properly.
 * Update tested up to.
