@@ -2,7 +2,7 @@
 /*
 * Plugin Name:  bbPress Notify (No-Spam)
 * Description:  Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version:      1.7.3
+* Version:      1.8
 * Author:       Vinny Alves
 * License:      GNU General Public License, v2 ( or newer )
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ load_plugin_textdomain( 'bbpress_notify',false, dirname( plugin_basename( __FILE
 
 class bbPress_Notify_noSpam {
 	
-	const VERSION = '1.7.3';
+	const VERSION = '1.8';
 	
 	protected $settings_section = 'bbpress_notify_options';
 	
@@ -240,7 +240,8 @@ class bbPress_Notify_noSpam {
 
 		$status = get_post_status( $topic_id ); 
 
-		if ( 'spam' === $status || 'publish' !== $status )
+		if (   in_array( $status, apply_filters( 'bbpnns_post_status_blacklist', array( 'spam' ) ) ) || 
+			 ! in_array( $status, apply_filters( 'bbpnns_post_status_whitelist', array( 'publish' ) ) ) )
 			return -1;
 
 		if ( 0 === $forum_id )
@@ -310,7 +311,8 @@ class bbPress_Notify_noSpam {
 		if ( 0 === $forum_id )
 			$forum_id = bbp_get_reply_forum_id( $reply_id );
 		
-		if ( 'spam' === $status || 'publish' !== $status )
+		if (   in_array( $status, apply_filters( 'bbpnns_post_status_blacklist', array( 'spam' ) ) ) || 
+			 ! in_array( $status, apply_filters( 'bbpnns_post_status_whitelist', array( 'publish' ) ) ) )
 			return -1;
 
 		if ( true === apply_filters( 'bbpnns_skip_reply_notification', false, $forum_id, $topic_id, $reply_id ) )
@@ -462,7 +464,10 @@ class bbPress_Notify_noSpam {
 	function admin_settings() {
 		// Add section to bbPress options
 		add_settings_section( $this->settings_section, __( 'E-mail Notifications', 'bbpress_notify' ), array( &$this, '_settings_intro_text' ), 'bbpress' );
-	
+
+		// Hook for additional topic settings
+		do_action( 'bbpnns_before_topic_settings' );
+		
 		// Add background option
 		add_settings_field( 'bbpress_notify_newtopic_background', __( 'Background Topic Notifications', 'bbpress_notify' ), array( &$this, '_topic_background_inputfield' ), 'bbpress', 'bbpress_notify_options' );
 		
@@ -475,6 +480,9 @@ class bbPress_Notify_noSpam {
 		
 		add_settings_field( 'bbpress_notify_newtopic_email_subject', __( 'E-mail subject', 'bbpress_notify' ), array( &$this, '_email_newtopic_subject_inputfield' ), 'bbpress', 'bbpress_notify_options' );
 		add_settings_field( 'bbpress_notify_newtopic_email_body', __( 'E-mail body', 'bbpress_notify' ), array( &$this, '_email_newtopic_body_inputfield' ), 'bbpress', 'bbpress_notify_options' );
+
+		// Hook for additional topic settings
+		do_action( 'bbpnns_after_topic_settings' );
 		
 		add_settings_field( 'bbpress_notify_newreply_background', __( 'Background Reply Notifications', 'bbpress_notify' ), array( &$this, '_reply_background_inputfield' ), 'bbpress', 'bbpress_notify_options' );
 		
@@ -488,6 +496,9 @@ class bbPress_Notify_noSpam {
 		add_settings_field( 'bbpress_notify_newreply_email_subject', __( 'E-mail subject', 'bbpress_notify' ), array( &$this, '_email_newreply_subject_inputfield' ), 'bbpress', 'bbpress_notify_options' );
 		add_settings_field( 'bbpress_notify_newreply_email_body', __( 'E-mail body', 'bbpress_notify' ), array( &$this, '_email_newreply_body_inputfield' ), 'bbpress', 'bbpress_notify_options' );
 	
+		// Hook for additional reply settings
+		do_action( 'bbpnns_after_reply_settings' );
+		
 		// Register the settings as part of the bbPress settings
 		register_setting( 'bbpress', 'bbpress_notify_newtopic_recipients' );
 		register_setting( 'bbpress', 'bbpress_notify_hidden_forum_topic_override' );
@@ -503,6 +514,9 @@ class bbPress_Notify_noSpam {
 		
 		register_setting( 'bbpress', "bbpress_notify_default_{$this->bbpress_topic_post_type}_notification" );
 		register_setting( 'bbpress', "bbpress_notify_default_{$this->bbpress_reply_post_type}_notification" );
+		
+		// Hook to register additional topic/reply settings
+		do_action( 'bbpnns_register_settings' );
 	}
 	
 	/**
