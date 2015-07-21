@@ -26,7 +26,9 @@ Settings include:
 
 = Premium Add-Ons =
 
- * [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/) Allow your audience to choose not to receive notifications. A must-have for CAN-SPAM laws! 
+ * [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/): Allow your audience to choose not to receive notifications. A must-have for CAN-SPAM laws!
+ * [bbPress Moderation Integration](http://usestrict.net/product/bbpress-moderation-plugin-add-on/): Make bbpnns work with [bbPress Moderation](https://wordpress.org/plugins/bbpressmoderation/). 
+ * [bbPress Private Groups Integration](http://usestrict.net/product/bbpress-notify-no-spam-private-groups-bridge/): Make bbpnns respect [bbPress Private Groups](https://wordpress.org/plugins/bbp-private-groups/) rules.
 
 
 == Installation ==
@@ -184,11 +186,4 @@ the [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out
 * First alpha version
 
 == Upgrade Notice ==
-= 1.4.2 =
-In some installs, people were getting duplicate emails. We're making sure that only one email is sent per user.
-
-= 1.4.1 =
-Fixes an error in preg_replace. Update is strongly recommended.
-
-= 1.4 =
-Fixes a couple of strict notices, and adds Settings action link, swaps <br> tags for newlines and enables sending notifications when creating a topic or reply from the admin UI.
+No upgrade needed at this time.
