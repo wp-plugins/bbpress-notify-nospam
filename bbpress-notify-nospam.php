@@ -2,7 +2,7 @@
 /*
 * Plugin Name:  bbPress Notify (No-Spam)
 * Description:  Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version:      1.8.1
+* Version:      1.8.2
 * Author:       Vinny Alves
 * License:      GNU General Public License, v2 ( or newer )
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ load_plugin_textdomain( 'bbpress_notify',false, dirname( plugin_basename( __FILE
 
 class bbPress_Notify_noSpam {
 	
-	const VERSION = '1.8.1';
+	const VERSION = '1.8.2';
 	
 	protected $settings_section = 'bbpress_notify_options';
 	
@@ -443,11 +443,14 @@ class bbPress_Notify_noSpam {
 
 			if ( false === apply_filters( 'bbpnns_dry_run', false ) )
 			{
+				// Turn on nl2br for wpmandrill
+				add_filter( 'mandrill_nl2br', array( &$this, 'handle_mandrill_nl2br' ), 10, 2 );
 				if ( ! wp_mail( $email, $filtered_subject, $filtered_body, $headers ) )
 				{
 					error_log( '[bbPress Notify No Spam] wp_mail failed for: ' . $email . ', with message: ' . print_r( error_get_last(),1 ) );
 					continue;
 				}
+				remove_filter( 'mandrill_nl2br', array( &$this, 'handle_mandrill_nl2br' ), 10 );
 			}
 		}
 		
@@ -455,6 +458,19 @@ class bbPress_Notify_noSpam {
 			return array( $recipients, $body );
 		
 		return true;
+	}
+	
+	/**
+	 * On-the-fly handling of nl2br by Mandrill
+	 * @param bool $nl2br
+	 * @param array $message
+	 * @return bool
+	 */
+	public function handle_mandrill_nl2br( $nl2br, $message )
+	{
+		$bbpnns_nl2b2_option = apply_filters( 'bbpnns_handle_mandrill_nl2br', true ); 
+		
+		return $bbpnns_nl2b2_option;
 	}
 	
 	/**
