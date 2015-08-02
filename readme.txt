@@ -52,7 +52,7 @@ the [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out
 
 
 == Changelog ==
-= 1.8.1 =
+= 1.8.2 =
 * Added: support for people using wpMandrill and getting emails without newlines. We turn on nl2br momentarily while sending out our emails. 
 This option can be overridden by using the filter 'bbpnns_handle_mandrill_nl2br'.
 
