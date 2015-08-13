@@ -8,7 +8,7 @@ Tested up to: 4.3-alpha-32294
 Text Domain: bbpress_notify
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.8.2
+Stable tag: 1.9
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VLQU2MMXKB6S2
 
 == Description ==
@@ -26,7 +26,8 @@ Settings include:
 
 = Premium Add-Ons =
 
- * [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/): Allow your audience to choose not to receive notifications. A must-have for CAN-SPAM laws!
+ * [Opt-out Add-on](http://usestrict.net/product/bbpress-notify-no-spam-opt-out-add-on/): Allow your audience to choose not to receive notifications. A must-have for CAN-SPAM and CASL laws!
+ * [Digest Add-on](): Allow your audience to choose to receive daily, weekly, or monthly digests.
  * [bbPress Moderation Integration](http://usestrict.net/product/bbpress-moderation-plugin-add-on/): Make bbpnns work with [bbPress Moderation](https://wordpress.org/plugins/bbpressmoderation/). 
  * [bbPress Private Groups Integration](http://usestrict.net/product/bbpress-notify-no-spam-private-groups-bridge/): Make bbpnns respect [bbPress Private Groups](https://wordpress.org/plugins/bbp-private-groups/) rules.
 
@@ -41,10 +42,10 @@ Settings include:
 = Can a user turn off notifications? =
  * Originally, this plugin was developed to alert Administrators of new topics and replies. After a few iterations, users requested that I add the ability to send
 messages to other roles, which then could be characterized as spam. To allow your users to opt-out from receiving notifications, please consider purchasing 
-the [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out-add-on/).
+the [Opt-out Module](http://usestrict.net/product/bbpress-notify-no-spam-opt-out-add-on/).
 
 = Does this plugin integrate with BuddyPress Groups? =
- * Not at this moment.
+ * Not at this moment. But if you want this feature badly enough, let me know and I'll look into it.
 
 == Screenshots ==
 1. The settings page
@@ -52,6 +53,13 @@ the [Opt-out Module](http://usestrict.net/2015/03/bbpress-notify-no-spam-opt-out
 
 
 == Changelog ==
+= 1.9 =
+* New Filter: bbpnns_skip_notification
+* New Action: bbpnns_after_email_sent_single_user
+* New Action: bbpnns_after_email_sent_all_users
+* Change: Only filter subject and body if user is OK to receive message
+* Change: Reduce DB calls by one per user
+
 = 1.8.2 =
 * Added: support for people using wpMandrill and getting emails without newlines. We turn on nl2br momentarily while sending out our emails. 
 This option can be overridden by using the filter 'bbpnns_handle_mandrill_nl2br'.

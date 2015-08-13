@@ -173,6 +173,7 @@ class Tests_bbPress_notify_no_spam_notify_new extends WP_UnitTestCase
 		// Non-spam, non-empty recipents
 		update_option( 'bbpress_notify_newreply_recipients', array( 'administrator', 'subscriber' ));
 		$arry = $bbpnns->notify_new_reply( $this->reply_id, $this->topic_id, $this->forum_id );
+		
 		$this->assertTrue( is_array( $arry ), 'Good notify returns array in test mode' );
 		
 		list( $recipients, $body ) = $arry;

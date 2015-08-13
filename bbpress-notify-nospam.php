@@ -2,7 +2,7 @@
 /*
 * Plugin Name:  bbPress Notify (No-Spam)
 * Description:  Sends email notifications upon topic/reply creation, as long as it's not flagged as spam.
-* Version:      1.8.2
+* Version:      1.9
 * Author:       Vinny Alves
 * License:      GNU General Public License, v2 ( or newer )
 * License URI:  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -17,7 +17,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
-* Copyright ( C ) 2012-2015 www.usestrict.net, released under the GNU General Public License.
+* Copyright (C) 2012-2015 www.usestrict.net, released under the GNU General Public License.
 */
 
 /* Search for translations */
@@ -25,7 +25,7 @@ load_plugin_textdomain( 'bbpress_notify',false, dirname( plugin_basename( __FILE
 
 class bbPress_Notify_noSpam {
 	
-	const VERSION = '1.8.2';
+	const VERSION = '1.9';
 	
 	protected $settings_section = 'bbpress_notify_options';
 	
@@ -250,18 +250,17 @@ class bbPress_Notify_noSpam {
 		if ( true === apply_filters( 'bbpnns_skip_topic_notification', false, $forum_id, $topic_id ) )
 			return -3;
 
-		$opt_recipients = apply_filters( 'bbpress_notify_recipients_hidden_forum', get_option( 'bbpress_notify_newtopic_recipients' ), $forum_id );
+		$roles = apply_filters( 'bbpress_notify_recipients_hidden_forum', get_option( 'bbpress_notify_newtopic_recipients' ), $forum_id );
 
 		$recipients = array();
-		foreach ( ( array )$opt_recipients as $opt_recipient )
+		foreach ( ( array ) $roles as $role )
 		{
-			if ( ! $opt_recipient ) continue;
+			if ( ! $role ) continue;
 
-			$users = get_users( array( 'role' => $opt_recipient ) );
-			foreach ( ( array )$users as $user )
+			$users = get_users( array( 'role' => $role ) );
+			foreach ( ( array ) $users as $user )
 			{
-				$user = get_object_vars( $user );
-				$recipients[$user['ID']] = $user['ID']; // make sure unique recepients
+				$recipients[$user->ID] = $user; // make sure unique recepients
 			}
 		}
 
@@ -318,18 +317,17 @@ class bbPress_Notify_noSpam {
 		if ( true === apply_filters( 'bbpnns_skip_reply_notification', false, $forum_id, $topic_id, $reply_id ) )
 			return -3;
 
-		$opt_recipients = apply_filters( 'bbpress_notify_recipients_hidden_forum', get_option( 'bbpress_notify_newreply_recipients' ), $forum_id );
+		$roles = apply_filters( 'bbpress_notify_recipients_hidden_forum', get_option( 'bbpress_notify_newreply_recipients' ), $forum_id );
 
 		$recipients = array();
-		foreach ( ( array )$opt_recipients as $opt_recipient )
+		foreach ( ( array ) $roles as $role )
 		{
-			if ( ! $opt_recipient ) continue;
+			if ( ! $role ) continue;
 
-			$users = get_users( array( 'role' => $opt_recipient ) );
-			foreach ( ( array )$users as $user )
+			$users = get_users( array( 'role' => $role ) );
+			foreach ( ( array ) $users as $user )
 			{
-				$user = get_object_vars( $user );
-				$recipients[$user['ID']] = $user['ID']; // make sure unique recepients
+				$recipients[$user->ID] = $user; // make sure unique recepients
 			}
 		}
 
@@ -428,31 +426,37 @@ class bbPress_Notify_noSpam {
 		// Allow Management of recipients list
 		$recipients = apply_filters( 'bbpnns_filter_recipients_before_send', $recipients );
 		
-		foreach ( ( array ) $recipients as $recipient_id )
+		foreach ( ( array ) $recipients as $recipient_id => $user_info )
 		{
-			$user_info = get_userdata( $recipient_id );
-			
-			/**
-			 * Allow per user subject and body modifications
-			 * @since 1.6.4 
-			 */ 
-			$filtered_subject = apply_filters( 'bbpnns_filter_email_subject_for_user', $subject, $user_info );
-			$filtered_body    = apply_filters( 'bbpnns_filter_email_body_for_user', $body, $user_info );
-			
-			$email = ( $recipient_id == -1 ) ? get_bloginfo( 'admin_email' ) : ( string ) $user_info->user_email ; 
+			$email = ( $recipient_id == -1 ) ? get_bloginfo( 'admin_email' ) : ( string ) $user_info->user_email ;
+			$email = apply_filters( 'bbpnns_skip_notification', $email ); // Allow user to be skipped for some reason 
 
-			if ( false === apply_filters( 'bbpnns_dry_run', false ) )
+			if ( ! empty( $email ) && false === apply_filters( 'bbpnns_dry_run', false ) )
 			{
-				// Turn on nl2br for wpmandrill
+				/**
+				 * Allow per user subject and body modifications
+				 * @since 1.6.4
+				 */
+				$filtered_subject = apply_filters( 'bbpnns_filter_email_subject_for_user', $subject, $user_info );
+				$filtered_body    = apply_filters( 'bbpnns_filter_email_body_for_user', $body, $user_info );
+				
+				// Turn on nl2br for wpMandrill
 				add_filter( 'mandrill_nl2br', array( &$this, 'handle_mandrill_nl2br' ), 10, 2 );
+				
 				if ( ! wp_mail( $email, $filtered_subject, $filtered_body, $headers ) )
 				{
 					error_log( '[bbPress Notify No Spam] wp_mail failed for: ' . $email . ', with message: ' . print_r( error_get_last(),1 ) );
 					continue;
 				}
+				
+				// Turn off nl2br for wpMandrill
 				remove_filter( 'mandrill_nl2br', array( &$this, 'handle_mandrill_nl2br' ), 10 );
+				
+				do_action( 'bbpnns_after_email_sent_single_user', $user_info, $filtered_subject, $filtered_body );
 			}
 		}
+		
+		do_action( 'bbpnns_after_email_sent_all_users', $recipients, $filtered_subject, $filtered_body );
 		
 		if ( true === apply_filters( 'bbpnns_dry_run', false ) )
 			return array( $recipients, $body );
@@ -468,7 +472,7 @@ class bbPress_Notify_noSpam {
 	 */
 	public function handle_mandrill_nl2br( $nl2br, $message )
 	{
-		$bbpnns_nl2b2_option = apply_filters( 'bbpnns_handle_mandrill_nl2br', true ); 
+		$bbpnns_nl2b2_option = apply_filters( 'bbpnns_handle_mandrill_nl2br', true, $nl2br, $message ); 
 		
 		return $bbpnns_nl2b2_option;
 	}
